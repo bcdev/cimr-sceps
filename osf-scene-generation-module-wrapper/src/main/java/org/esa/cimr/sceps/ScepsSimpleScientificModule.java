@@ -4,7 +4,7 @@ package org.esa.cimr.sceps;
  * Class containing just a main method for first simple tests.
  *
  */
-public class ScepsSimpleMain {
+public class ScepsSimpleScientificModule {
 
     /**
      * The main method.

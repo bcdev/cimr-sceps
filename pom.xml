@@ -14,7 +14,7 @@
     <description>CIMR SCEPS tools</description>
 
     <modules>
-        <module>osf-module-wrapper</module>
+        <module>osf-scene-generation-module-wrapper</module>
     </modules>
 
 </project>

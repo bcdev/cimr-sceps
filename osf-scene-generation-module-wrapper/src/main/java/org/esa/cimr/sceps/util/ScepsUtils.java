@@ -1,4 +1,4 @@
-package org.esa.cimr.sceps;
+package org.esa.cimr.sceps.util;
 
 /**
  * Utility class for CIMR SCEPS
