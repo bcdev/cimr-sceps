@@ -1,10 +1,10 @@
 package org.esa.cimr.sceps;
 
 /**
- * Class containing just a main method for first simple tests.
+ * Class which could serve as Java 'Scientific Module' for simple tests.
  *
  */
-public class ScepsSimpleScientificModule {
+public class ScepsSimpleJavaScientificModule {
 
     /**
      * The main method.

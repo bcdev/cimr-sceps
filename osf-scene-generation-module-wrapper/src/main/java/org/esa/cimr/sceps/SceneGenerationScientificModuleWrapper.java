@@ -5,14 +5,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * Class containing just a main method as entry for first simple wrapper tests.
- * This class shall
+ * Class containing the wrapper for the OSF Scene Generation Scientific Moduule.
+ * This class shall:
  * - be made available as executable jar (see pom) to be called from openSF
  * (set as 'Executable' in corresponding openSF module General tab).
  * - properly transform openSF arguments/parameters to ScientificModule arguments/parameters
- * - do a system call to run a simple Matlab 'Scientific Module'
+ * - do a system call to run the SGM Scientific Module in Matlab batch mode
  */
-public class SimpleScientificMatlabModuleWrapper {
+public class SceneGenerationScientificModuleWrapper {
+    // todo: implement
+
     /**
      * The wrapper main method.
      *
@@ -50,13 +52,5 @@ public class SimpleScientificMatlabModuleWrapper {
                 e.printStackTrace();
             }
         }
-
-        // 1. read an xml parameters input file, such as Forward_Model_Local_Configuration_geocard2_day1.xml
-        // 2. validate parameters and write into Java variables/arrays
-        // 3. take these Java variables/arrays and write into xml parameters output file
-        // 4. System call to ScepsSimpleScientificModule which takes this xml parameters output file as input parameter
-        // 5. in ScepsSimpleScientificModule, extract again the parameters, do some fake action, and write a
-        //      'scientific result' output file, e.g. as netcdf
-
     }
 }
