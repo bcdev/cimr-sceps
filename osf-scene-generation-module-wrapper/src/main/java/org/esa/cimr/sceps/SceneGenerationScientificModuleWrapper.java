@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
 /**
  * Class containing the wrapper for the OSF Scene Generation Scientific Moduule.
@@ -35,17 +36,36 @@ public class SceneGenerationScientificModuleWrapper {
             // For example, /data/workspace/cimr-opensf/test/bin
             // on VM cimr-sceps-develop
 
-            String devSCEPSpath = "/data/sceps/SCEPSscd/SCEPScodes";
-            String dataSCEPSpath = "/data/sceps/SCEPSscd/SCEPSdata";
+            String scepsScdRoot = "/data/sceps/SCEPSscd";
+            String devSCEPSpath = scepsScdRoot + "/SCEPScodes";
+            String devSCEPSTestPath = devSCEPSpath + "/Tests";
+            String dataSCEPSpath = scepsScdRoot + "/SCEPSdata";
 
             // String[] commands = {"/bin/bash", "-c", "for i in {1..10000} ; do echo Hello STDERR $i 1>&2 ; echo Hello STDOUT $i; done"};
             // String[] commands = {"matlab", "-batch", "\"x1='bla', x2='blubb'\""};
             String[] commands = {
                     "matlab",
                     "-batch",
-                    "\"devSCEPSpath = '" + devSCEPSpath + "', " +
-                            "dataSCEPSpath = '" + dataSCEPSpath + "', " +
-                            "startup_matlab_SCEPScodes(devSCEPSpath, dataSCEPSpath)\""};
+                    "cd " + scepsScdRoot + "; " +
+                    "devSCEPSpath = '" + devSCEPSpath + "'; " +
+                    "addpath '" + devSCEPSpath + "'; " +
+                    "savepath; " +
+                    "dataSCEPSpath = '" + dataSCEPSpath + "'; " +
+                    "diary /home/olaf/mydiary.txt; " +
+                    "startup_matlab_SCEPScodes(devSCEPSpath, dataSCEPSpath);" +
+                    "cd " + devSCEPSTestPath + "; " +
+                    "addpath '" + devSCEPSTestPath + "'; " +
+                    "savepath; " +
+                    "test_scene_generation_module;"
+            };
+
+            StringBuffer sb = new StringBuffer();
+            for(int i = 0; i < commands.length; i++) {
+                sb.append(commands[i]);
+            }
+            String str = Arrays.toString(commands);
+            System.out.println("Command sequence: " + str);
+
             try {
                 Process process = Runtime.getRuntime().exec(commands);
 

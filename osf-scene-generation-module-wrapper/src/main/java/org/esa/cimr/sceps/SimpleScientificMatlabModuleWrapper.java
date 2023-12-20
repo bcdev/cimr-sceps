@@ -32,10 +32,14 @@ public class SimpleScientificMatlabModuleWrapper {
             // and that the folder is on the Matlab path...
             // For example, /data/workspace/cimr-opensf/test/bin
             // on VM cimr-sceps-develop
-            String command = "matlab -batch createDummyFile";
+//            String command = "matlab -batch createDummyFile";  // this works
+//            String command = "matlab -batch \"createDummyFile\"";  // this does not work
+//            String[] commands = {"matlab", "-batch", "createDummyFile"};  // this works
+//            String[] commands = {"matlab", "-batch", "\"createDummyFile\""};   // this does not work
+            String[] commands = {"matlab", "-batch", "mypath = '/home/olaf'; createDummyFile"};  // this works
 
             try {
-                Process process = Runtime.getRuntime().exec(command);
+                Process process = Runtime.getRuntime().exec(commands);
 
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(process.getInputStream()));
