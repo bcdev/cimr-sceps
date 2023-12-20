@@ -2,9 +2,7 @@ package org.esa.cimr.sceps;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 
 /**
  * Class containing the wrapper for the OSF Scene Generation Scientific Moduule.
@@ -14,7 +12,7 @@ import java.util.Arrays;
  * - properly transform openSF arguments/parameters to ScientificModule arguments/parameters
  * - do a system call to run the SGM Scientific Module in Matlab batch mode
  */
-public class SceneGenerationScientificModuleWrapper {
+public class TestSceneGenerationModuleWrapper {
     // todo: implement
 
     /**
@@ -46,32 +44,29 @@ public class SceneGenerationScientificModuleWrapper {
             String[] commands = {
                     "matlab",
                     "-batch",
-                    "cd " + scepsScdRoot + "; " +
                     "devSCEPSpath = '" + devSCEPSpath + "'; " +
-                    "addpath '" + devSCEPSpath + "'; " +
-                    "savepath; " +
-                    "dataSCEPSpath = '" + dataSCEPSpath + "'; " +
-                    "diary /home/olaf/mydiary.txt; " +
-                    "startup_matlab_SCEPScodes(devSCEPSpath, dataSCEPSpath);" +
-                    "cd " + devSCEPSTestPath + "; " +
-                    "addpath '" + devSCEPSTestPath + "'; " +
-                    "savepath; " +
-                    "test_scene_generation_module;"
+                            "addpath '" + devSCEPSpath + "'; " +
+                            "savepath; " +
+                            "dataSCEPSpath = '" + dataSCEPSpath + "'; " +
+                            "diary /home/olaf/mydiary.txt; " +
+                            "cd " + devSCEPSTestPath + "; " +
+                            "addpath '" + devSCEPSTestPath + "'; " +
+                            "savepath; " +
+                            "test_scene_generation_module;"
             };
 
-            StringBuffer sb = new StringBuffer();
-            for(int i = 0; i < commands.length; i++) {
-                sb.append(commands[i]);
-            }
-            String str = Arrays.toString(commands);
-            System.out.println("Command sequence: " + str);
+//            StringBuffer sb = new StringBuffer();
+//            for(int i = 0; i < commands.length; i++) {
+//                sb.append(commands[i]);
+//            }
+//            String str = Arrays.toString(commands);
+//            System.out.println("Command sequence: " + str);
 
             try {
                 Process process = Runtime.getRuntime().exec(commands);
 
-                InputStream inputStream = process.getInputStream();
-                InputStreamReader isr = new InputStreamReader(inputStream, "UTF-8");
-                BufferedReader reader = new BufferedReader(isr);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(),
+                        "UTF-8"));
                 String line;
                 while ((line = reader.readLine()) != null) {
                     System.out.println(line);
