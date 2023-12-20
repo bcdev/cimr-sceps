@@ -2,6 +2,7 @@ package org.esa.cimr.sceps;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
@@ -28,19 +29,29 @@ public class SceneGenerationScientificModuleWrapper {
                 System.out.println("arg = " + arg);
             }
 
-//            String command = "matlab -batch pwd";
             // make sure that createDummyFile.m is in the same folder
             // as the executable jar containing this dummy wrapper,
             // and that the folder is on the Matlab path...
             // For example, /data/workspace/cimr-opensf/test/bin
             // on VM cimr-sceps-develop
-            String command = "matlab -batch createDummyFile";
 
+            String devSCEPSpath = "/data/sceps/SCEPSscd/SCEPScodes";
+            String dataSCEPSpath = "/data/sceps/SCEPSscd/SCEPSdata";
+
+            // String[] commands = {"/bin/bash", "-c", "for i in {1..10000} ; do echo Hello STDERR $i 1>&2 ; echo Hello STDOUT $i; done"};
+            // String[] commands = {"matlab", "-batch", "\"x1='bla', x2='blubb'\""};
+            String[] commands = {
+                    "matlab",
+                    "-batch",
+                    "\"devSCEPSpath = '" + devSCEPSpath + "', " +
+                            "dataSCEPSpath = '" + dataSCEPSpath + "', " +
+                            "startup_matlab_SCEPScodes(devSCEPSpath, dataSCEPSpath)\""};
             try {
-                Process process = Runtime.getRuntime().exec(command);
+                Process process = Runtime.getRuntime().exec(commands);
 
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(process.getInputStream()));
+                InputStream inputStream = process.getInputStream();
+                InputStreamReader isr = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader reader = new BufferedReader(isr);
                 String line;
                 while ((line = reader.readLine()) != null) {
                     System.out.println(line);
