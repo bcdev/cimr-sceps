@@ -26,16 +26,16 @@ public class ScepsConfigTest {
 
         //Verify XML Content
 
-        Element root = document.getDocumentElement();
+        Element root = ScepsConfig.getDocumentRootElement(document);
         assertNotNull(root);
         assertEquals("Global_Configuration", root.getNodeName());
         assertNotNull(root.getAttributes());
         assertEquals(1, root.getAttributes().getLength());
         assertEquals("01.00.00", root.getAttribute("version"));
 
-        NodeList nList = document.getElementsByTagName("parameter");
+        NodeList nList = ScepsConfig.getDocumentElementsByTagName(document, "parameter");
         assertNotNull(nList);
-        assertEquals(3, nList.getLength());
+        assertEquals(4, nList.getLength());
 
         for (int i = 0; i < nList.getLength(); i++) {
             Node node = nList.item(i);
@@ -43,6 +43,7 @@ public class ScepsConfigTest {
             assertEquals("parameter", node.getNodeName());
             assertEquals(Node.ELEMENT_NODE, node.getNodeType());
         }
+
 
         Element elem = (Element) nList.item(0);
         assertEquals(3, elem.getAttributes().getLength());
@@ -52,6 +53,8 @@ public class ScepsConfigTest {
         assertNotNull(elem.getFirstChild());
         assertNotNull(elem.getFirstChild().getTextContent());
         assertEquals("v1", elem.getFirstChild().getTextContent());
+
+        assertEquals("v1", ScepsConfig.getDocumentElementTextItemByName(document, "parameter", "geodata_version"));
 
         elem = (Element) nList.item(1);
         assertEquals(3, elem.getAttributes().getLength());
@@ -70,6 +73,15 @@ public class ScepsConfigTest {
         assertNotNull(elem.getFirstChild());
         assertNotNull(elem.getFirstChild().getTextContent());
         assertEquals("0", elem.getFirstChild().getTextContent());
+
+        elem = (Element) nList.item(3);
+        assertEquals(3, elem.getAttributes().getLength());
+        assertEquals("text", elem.getAttribute("description"));
+        assertEquals("sceps_scd_root", elem.getAttribute("name"));
+        assertEquals("STRING", elem.getAttribute("type"));
+        assertNotNull(elem.getFirstChild());
+        assertNotNull(elem.getFirstChild().getTextContent());
+        assertEquals("/data/sceps/SCEPSscd", elem.getFirstChild().getTextContent());
     }
 
     @Test
@@ -87,14 +99,14 @@ public class ScepsConfigTest {
 
         //Verify XML Content
 
-        Element root = document.getDocumentElement();
+        Element root = ScepsConfig.getDocumentRootElement(document);
         assertNotNull(root);
         assertEquals("GeoInputs_Extract_Local_Configuration", root.getNodeName());
         assertNotNull(root.getAttributes());
         assertEquals(1, root.getAttributes().getLength());
         assertEquals("0.1", root.getAttribute("version"));
 
-        NodeList nList = document.getElementsByTagName("parameter");
+        NodeList nList = ScepsConfig.getDocumentElementsByTagName(document, "parameter");
         assertNotNull(nList);
         assertEquals(6, nList.getLength());
 
@@ -152,14 +164,14 @@ public class ScepsConfigTest {
 
         //Verify XML Content
 
-        Element root = document.getDocumentElement();
+        Element root = ScepsConfig.getDocumentRootElement(document);
         assertNotNull(root);
         assertEquals("Forward_Model_Local_Configuration", root.getNodeName());
         assertNotNull(root.getAttributes());
         assertEquals(1, root.getAttributes().getLength());
         assertEquals("04.15.33", root.getAttribute("version"));
 
-        NodeList nList = document.getElementsByTagName("parameter");
+        NodeList nList = ScepsConfig.getDocumentElementsByTagName(document, "parameter");
         assertNotNull(nList);
         assertEquals(12, nList.getLength());
 

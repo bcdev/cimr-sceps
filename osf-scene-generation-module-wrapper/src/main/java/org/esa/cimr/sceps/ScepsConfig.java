@@ -1,10 +1,16 @@
 package org.esa.cimr.sceps;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Utility class for CIMR SCEPS
@@ -35,4 +41,27 @@ public class ScepsConfig {
 
         return document;
     }
+
+    public static NodeList getDocumentElementsByTagName(Document document, String tagName) {
+        return document.getElementsByTagName(tagName);
+    }
+
+    public static Element getDocumentRootElement(Document document) {
+        return document.getDocumentElement();
+    }
+
+    public static String getDocumentElementTextItemByName(Document document, String tagName, String elementName) {
+        NodeList nList = getDocumentElementsByTagName(document, tagName);
+
+        for (int i = 0; i < nList.getLength(); i++) {
+            Node node = nList.item(i);
+
+            Element elem = (Element) node;
+            if (elem.getFirstChild() != null && elem.getAttribute("name").equals(elementName)) {
+                return elem.getFirstChild().getTextContent();
+            }
+        }
+        return null;
+    }
+
 }
