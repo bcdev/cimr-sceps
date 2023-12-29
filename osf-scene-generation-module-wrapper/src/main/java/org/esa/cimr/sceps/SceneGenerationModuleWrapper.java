@@ -62,7 +62,7 @@ public class SceneGenerationModuleWrapper {
             final String[] argConfigItems = args[0].split(",");
 
             // 'simulation' mode for testing. Omits execution of the Matlab batch command.
-            final boolean simulation = args[args.length-1].equals("simulation=true");
+            final boolean simulation = args[args.length - 1].equals("simulation=true");
 
             if (simulation) {
                 for (String arg : argConfigItems) {
@@ -81,15 +81,15 @@ public class SceneGenerationModuleWrapper {
                 final Document globalConfigDoc = ScepsConfig.readXMLDocumentFromFile(globalConfigXmlPath);
                 scepsScdRoot = ScepsConfig.getDocumentElementTextItemByName(globalConfigDoc,
                         ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCD_ROOT_CONFIG_ITEM_NAME);
-                // todo: add this to global config:
+                // this was added to global config:
                 // <parameter description="text" name="sceps_scd_root" type="STRING">/data/sceps/SCEPSscd</parameter>
 
                 final Document localConfigDoc = ScepsConfig.readXMLDocumentFromFile(localConfigXmlPath);
                 moduleName = ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
                         ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_MODULE_NAME_CONFIG_ITEM_NAME);
-                // todo: add this to GeoInputs_Extractlocal config:
+                // this was added to GeoInputs_Extractlocal config:
                 // <parameter description="text" name="module_name" type="STRING">GeoInputs_Extract</parameter>
-                // todo: add this to Forward_Model local config:
+                // this was added to Forward_Model local config:
                 // <parameter description="text" name="module_name" type="STRING">Forward_Model</parameter>
                 if (moduleName == null) {
                     moduleName = FilenameUtils.removeExtension((new File(localConfigXmlPath)).getName());
@@ -99,7 +99,7 @@ public class SceneGenerationModuleWrapper {
                 }
 
                 // we need SCENE_TYPE and SCENE_DATE as global variables from GeoInputs_Extract config:
-                // It's in GeoInputs_Extract config, seems that we need to put it also in the Forward_Model config...
+                // It's in GeoInputs_Extract config olny, thus this was added to Forward_Model local config:
                 sceneType = ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
                         ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCENE_TYPE_CONFIG_ITEM_NAME);
                 sceneDate = ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
@@ -124,18 +124,21 @@ public class SceneGenerationModuleWrapper {
             String inputs = globalConfigXmlFile.getParent();  // everything is in the <openSF sessionFolder>
             String outputs = globalConfigXmlFile.getParent();  // same for outputs
 
+            final String matlabGlobalVariablesString = "global E2E_HOME; E2E_HOME = '" + dataSCEPSpath + "'; " +
+                    "global SCENE_TYPE; SCENE_TYPE = '" + sceneType + "'; " +
+                    "global SCENE_DATE; SCENE_DATE = '" + sceneDate + "'; " +
+                    "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" +
+                    outputs + File.separator + "GeoInputs_Extract'; " +
+                    "global LOG; LOG = Logger(); ";
+
             String[] commands = {
                     "matlab",
                     "-batch",
                     "devSCEPSpath = '" + devSCEPSpath + "'; " +
                             "addpath '" + devSCEPSpath + "'; " +
-                            "global E2E_HOME; E2E_HOME = '" + dataSCEPSpath + "'; " +
-                            "global SCENE_TYPE; SCENE_TYPE = '" + sceneType + "'; " +
-                            "global SCENE_DATE; SCENE_DATE = '" + sceneDate + "'; " +
-                            "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" + outputs + File.separator + "GeoInputs_Extract'; " +
-                            "global LOG; LOG = Logger(); " +
                             "cd " + modulesParentName + "; " +
                             "addpath '" + modulesParentName + "'; " +
+                            matlabGlobalVariablesString +
                             moduleName + "('" + configurationParameters + "','" + inputs + "','" + outputs + "');"
             };
 
