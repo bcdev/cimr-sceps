@@ -124,7 +124,7 @@ public class SceneGenerationModuleWrapper {
                             "global LOG; LOG = Logger(); " +
                             "cd " + modulesParentName + "; " +
                             "addpath '" + modulesParentName + "'; " +
-                            moduleName + "(" + configurationParameters + "," + inputs + "," + outputs + ");"
+                            moduleName + "('" + configurationParameters + "','" + inputs + "','" + outputs + "');"
             };
 
             String str = Arrays.toString(commands);
