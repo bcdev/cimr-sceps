@@ -49,109 +49,102 @@ public class SceneGenerationModuleWrapper {
     /**
      * The wrapper main method.
      *
-     * @param args - Program arguments. Just one single string with comma separated entries. These are:
-     *             # full path of global config file
-     *             # full path of local config file
-     *             # full paths of input files 1..N
-     *             # full paths of output files 1..M
+     * @param args - Program arguments. Two single strings with comma separated entries. These are:
+     *             # first string: <full path of global config file>,<full path of global config file>
+     *             # second string: <full paths of input files 1..N>,<full paths of output files 1..M>
+     *             # Optionally, a 'simulation' mode can be set: last arg is 'simulation=true'
      */
     public static void main(String[] args) {
-        if (args.length != 1 && args.length != 2) {
+        if (args.length < 1) {
             System.out.println("Wrong number of arguments given - must be one comma separated string containing " +
                     "global and local config file, all input and output files. Exiting.");
             System.exit(1);
         } else {
-            final String[] argItems = args[0].split(",");
-            if (argItems.length < 1) {
-                System.out.println("Too few arguments given - arg string must at least contain " +
-                        "global and local config file, and optionally input and output files. Exiting.");
-                System.exit(1);
-            } else {
-                final boolean simulation = args.length == 2 && args[1].equals("simulation=true");
+            final String[] argConfigItems = args[0].split(",");
 
-                if (simulation) {
-                    for (String arg : argItems) {
-                        System.out.println("argItem = " + arg);
-                    }
+            // 'simulation' mode for testing. Omits execution of the Matlab batch command.
+            final boolean simulation = args[args.length-1].equals("simulation=true");
+
+            if (simulation) {
+                for (String arg : argConfigItems) {
+                    System.out.println("argItem = " + arg);
+                }
+            }
+
+            // set relevant paths:
+            String scepsScdRoot;
+            String moduleName;
+            final String globalConfigXmlPath = argConfigItems[0];
+            final String localConfigXmlPath = argConfigItems[1];
+            try {
+                final Document globalConfigDoc = ScepsConfig.readXMLDocumentFromFile(globalConfigXmlPath);
+                scepsScdRoot = ScepsConfig.getDocumentElementTextItemByName(globalConfigDoc,
+                        ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCD_ROOT_CONFIG_ITEM_NAME);
+                // todo: add this to global config:
+                // <parameter description="text" name="sceps_scd_root" type="STRING">/data/sceps/SCEPSscd</parameter>
+
+                final Document localConfigDoc = ScepsConfig.readXMLDocumentFromFile(localConfigXmlPath);
+                moduleName = ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
+                        ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_MODULE_NAME_CONFIG_ITEM_NAME);
+                // todo: add this to GeoInputs_Extractlocal config:
+                // <parameter description="text" name="module_name" type="STRING">GeoInputs_Extract</parameter>
+                // todo: add this to Forward_Model local config:
+                // <parameter description="text" name="module_name" type="STRING">Forward_Model</parameter>
+                if (moduleName == null) {
+                    moduleName = FilenameUtils.removeExtension((new File(localConfigXmlPath)).getName());
+                    // strip extension '_Local_Configuration':
+                    int index = moduleName.indexOf("_Local_Configuration");
+                    moduleName = moduleName.substring(0, index);
                 }
 
-                // set relevant paths:
-//            final String scepsScdRoot = "/data/sceps/SCEPSscd"; // "<parsed from global config>";
-//            String moduleName = "GeoInputs_Extract";      // "<default or parsed from local config>";  // here, GeoInputs_Extract or Forward_Model
-                String scepsScdRoot;
-                String moduleName;
-                final String globalConfigXmlPath = argItems[0];
-                final String localConfigXmlPath = argItems[1];
+            } catch (Exception e) {
+                // todo
+                throw new RuntimeException(e);
+            }
+
+            String devSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_CODES_FOLDER_NAME;
+            String dataSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_DATA_FOLDER_NAME;
+            String modulesParentName = devSCEPSpath + File.separator +
+                    ScepsConstants.SCENE_GENERATION_MODULE_FOLDER_NAME + File.separator +
+                    ScepsConstants.SCENE_GENERATION_MODULE_MODULES_SUBFOLDER_NAME;
+
+            // set relevant parameters to match module name signature (see e.g. GeoInputs_Extract.m):
+            final File globalConfigXmlFile = new File(globalConfigXmlPath);
+
+            String configurationParameters = globalConfigXmlPath + "," + localConfigXmlPath;
+            String inputs = globalConfigXmlFile.getParent();  // everything is in the <openSF sessionFolder>
+            String outputs = globalConfigXmlFile.getParent();  // same for outputs
+
+            String[] commands = {
+                    "matlab",
+                    "-batch",
+                    "devSCEPSpath = '" + devSCEPSpath + "'; " +
+                            "addpath '" + devSCEPSpath + "'; " +
+                            "global E2E_HOME; E2E_HOME = '" + dataSCEPSpath + "'; " +
+                            "global LOG; LOG = Logger(); " +
+                            "cd " + modulesParentName + "; " +
+                            "addpath '" + modulesParentName + "'; " +
+                            moduleName + "(" + configurationParameters + "," + inputs + "," + outputs + ");"
+            };
+
+            String str = Arrays.toString(commands);
+            System.out.println("Command sequence: " + str);
+
+            if (!simulation) {
                 try {
-                    final Document globalConfigDoc = ScepsConfig.readXMLDocumentFromFile(globalConfigXmlPath);
-                    scepsScdRoot = ScepsConfig.getDocumentElementTextItemByName(globalConfigDoc,
-                            ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCD_ROOT_CONFIG_ITEM_NAME);
-                    // todo: add this to global config:
-                    // <parameter description="text" name="sceps_scd_root" type="STRING">/data/sceps/SCEPSscd</parameter>
+                    Process process = Runtime.getRuntime().exec(commands);
 
-                    final Document localConfigDoc = ScepsConfig.readXMLDocumentFromFile(localConfigXmlPath);
-                    moduleName = ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
-                            ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_MODULE_NAME_CONFIG_ITEM_NAME);
-                    // todo: add this to GeoInputs_Extractlocal config:
-                    // <parameter description="text" name="module_name" type="STRING">GeoInputs_Extract</parameter>
-                    // todo: add this to Forward_Model local config:
-                    // <parameter description="text" name="module_name" type="STRING">Forward_Model</parameter>
-                    if (moduleName == null) {
-                        moduleName = FilenameUtils.removeExtension((new File(localConfigXmlPath)).getName());
-                        // strip extension '_Local_Configuration':
-                        int index = moduleName.indexOf("_Local_Configuration");
-                        moduleName = moduleName.substring(0, index);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(),
+                            StandardCharsets.UTF_8));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
                     }
 
-                } catch (Exception e) {
-                    // todo
-                    throw new RuntimeException(e);
-                }
+                    reader.close();
 
-                String devSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_CODES_FOLDER_NAME;
-                String dataSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_DATA_FOLDER_NAME;
-                String modulesParentName = devSCEPSpath + File.separator +
-                        ScepsConstants.SCENE_GENERATION_MODULE_FOLDER_NAME + File.separator +
-                        ScepsConstants.SCENE_GENERATION_MODULE_MODULES_SUBFOLDER_NAME;
-
-                // set relevant parameters to match module name signature (see e.g. GeoInputs_Extract.m):
-                final File globalConfigXmlFile = new File(globalConfigXmlPath);
-
-                String configurationParameters = globalConfigXmlPath + "," + localConfigXmlPath;
-                String inputs = globalConfigXmlFile.getParent();  // everything is in the <openSF sessionFolder>
-                String outputs = globalConfigXmlFile.getParent();  // same for outputs
-
-                String[] commands = {
-                        "matlab",
-                        "-batch",
-                        "devSCEPSpath = '" + devSCEPSpath + "'; " +
-                                "addpath '" + devSCEPSpath + "'; " +
-                                "global E2E_HOME; E2E_HOME = '" + dataSCEPSpath + "'; " +
-                                "global LOG; LOG = Logger()" +
-                                "cd " + modulesParentName + "; " +
-                                "addpath '" + modulesParentName + "'; " +
-                                moduleName + "(" + configurationParameters + "," + inputs + "," + outputs + ");"
-                };
-
-                String str = Arrays.toString(commands);
-                System.out.println("Command sequence: " + str);
-
-                if (!simulation) {
-                    try {
-                        Process process = Runtime.getRuntime().exec(commands);
-
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(),
-                                StandardCharsets.UTF_8));
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            System.out.println(line);
-                        }
-
-                        reader.close();
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
 
