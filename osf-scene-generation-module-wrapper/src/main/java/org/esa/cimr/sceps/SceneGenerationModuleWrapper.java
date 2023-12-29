@@ -10,8 +10,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import static org.esa.cimr.sceps.ScepsConstants.SCEPS_MODULE_NAME_CONFIG_ITEM_NAME;
-import static org.esa.cimr.sceps.ScepsConstants.SCEPS_SCD_ROOT_CONFIG_ITEM_NAME;
+import static org.esa.cimr.sceps.ScepsConstants.*;
 
 /**
  * Class containing the wrapper for the OSF Scene Generation Scientific Moduule.
@@ -74,6 +73,8 @@ public class SceneGenerationModuleWrapper {
             // set relevant paths:
             String scepsScdRoot;
             String moduleName;
+            String sceneType;
+            String sceneDate;
             final String globalConfigXmlPath = argConfigItems[0];
             final String localConfigXmlPath = argConfigItems[1];
             try {
@@ -96,6 +97,14 @@ public class SceneGenerationModuleWrapper {
                     int index = moduleName.indexOf("_Local_Configuration");
                     moduleName = moduleName.substring(0, index);
                 }
+
+                // we need SCENE_TYPE and SCENE_DATE as global variables from GeoInputs_Extract config:
+                // It's in GeoInputs_Extract config, seems that we need to put it also in the Forward_Model config...
+                sceneType = ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
+                        ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCENE_TYPE_CONFIG_ITEM_NAME);
+                sceneDate = ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
+                        ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCENE_DATE_CONFIG_ITEM_NAME);
+
 
             } catch (Exception e) {
                 // todo
@@ -121,6 +130,9 @@ public class SceneGenerationModuleWrapper {
                     "devSCEPSpath = '" + devSCEPSpath + "'; " +
                             "addpath '" + devSCEPSpath + "'; " +
                             "global E2E_HOME; E2E_HOME = '" + dataSCEPSpath + "'; " +
+                            "global SCENE_TYPE; SCENE_TYPE = '" + sceneType + "'; " +
+                            "global SCENE_DATE; SCENE_DATE = '" + sceneDate + "'; " +
+                            "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" + outputs + File.separator + "GeoInputs_Extract'; " +
                             "global LOG; LOG = Logger(); " +
                             "cd " + modulesParentName + "; " +
                             "addpath '" + modulesParentName + "'; " +

@@ -173,7 +173,7 @@ public class ScepsConfigTest {
 
         NodeList nList = ScepsConfig.getDocumentElementsByTagName(document, "parameter");
         assertNotNull(nList);
-        assertEquals(12, nList.getLength());
+        assertEquals(14, nList.getLength());
 
         for (int i = 0; i < nList.getLength(); i++) {
             Node node = nList.item(i);

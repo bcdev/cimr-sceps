@@ -16,5 +16,7 @@ public class ScepsConstants {
 
     public static final String SCEPS_SCD_ROOT_CONFIG_ITEM_NAME = "sceps_scd_root";
     public static final String SCEPS_MODULE_NAME_CONFIG_ITEM_NAME = "module_name";
+    public static final String SCEPS_SCENE_TYPE_CONFIG_ITEM_NAME = "scene_type";
+    public static final String SCEPS_SCENE_DATE_CONFIG_ITEM_NAME = "scene_date";
 
 }

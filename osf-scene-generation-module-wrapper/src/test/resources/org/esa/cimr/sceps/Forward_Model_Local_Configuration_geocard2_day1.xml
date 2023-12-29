@@ -11,7 +11,10 @@
    <parameter name="sensor_height" description="" type="FLOAT">853</parameter>
    <parameter name="data_thinning" description="" type="INTEGER">-2</parameter>
    <parameter name="emis_ice_smoothing" description="" type="FLOAT">1</parameter>
-   <parameter name="emis_land_external" type="FLOAT" dims="1 1" >-999 </parameter> 
+   <parameter name="emis_land_external" type="FLOAT" dims="1 1" >-999 </parameter>
+
+   <parameter name="scene_type" description="" type="STRING">geo-nemo</parameter>
+   <parameter name="scene_date" description="" type="STRING">20161217</parameter>
 </Forward_Model_Local_Configuration>
 
 
