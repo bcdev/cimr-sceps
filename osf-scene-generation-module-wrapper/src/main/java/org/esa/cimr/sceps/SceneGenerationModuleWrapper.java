@@ -21,7 +21,6 @@ import static org.esa.cimr.sceps.ScepsConstants.*;
  * - do a system call to run the SGM Scientific Module in Matlab batch mode
  */
 public class SceneGenerationModuleWrapper {
-    // todo: implement
 
 //    *** openSF Simulation --> <moduleFile1.m>, .. ,<moduleFileN.m>  :
 //
@@ -40,10 +39,15 @@ public class SceneGenerationModuleWrapper {
 //
 //                Wrapper needs to do:
 //                        - main method receives as input parameters:
-//                        # global config file (see above)
-//                      # local config file (see above)
-//                      # input files 1..N
-//                      # output files 1..M
+//                        # global config file
+//                        # local config file
+//                        # input files 1..N
+//                        # output files 1..M
+
+//    java -jar /data/workspace/cimr-sceps/osf-scene-generation-module-wrapper/target/osf-scene-generation-module-wrapper-1.0-SNAPSHOT.jar
+//   /data/workspace/cimr-opensf/simulations/SCEPS_SceGen_test.20231229T192846d191/Global_Configuration.xml,
+//   /data/workspace/cimr-opensf/simulations/SCEPS_SceGen_test.20231229T192846d191/GeoInputs_Extract_Local_Configuration_geocard2_day1.xml
+//   /data/workspace/cimr-opensf/simulations/SCEPS_SceGen_test.20231229T192846d191/GeoInputs_Extract_Output
 
     /**
      * The wrapper main method.
@@ -85,15 +89,9 @@ public class SceneGenerationModuleWrapper {
                 // <parameter description="text" name="sceps_scd_root" type="STRING">/data/sceps/SCEPSscd</parameter>
 
                 final Document localConfigDoc = ScepsConfig.readXMLDocumentFromFile(localConfigXmlPath);
-                moduleName = ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
-                        ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_MODULE_NAME_CONFIG_ITEM_NAME);
-                // this was added to GeoInputs_Extractlocal config:
-                // <parameter description="text" name="module_name" type="STRING">GeoInputs_Extract</parameter>
-                // this was added to Forward_Model local config:
-                // <parameter description="text" name="module_name" type="STRING">Forward_Model</parameter>
-                if (moduleName == null) {
-                    moduleName = FilenameUtils.removeExtension((new File(localConfigXmlPath)).getName());
-                    // strip extension '_Local_Configuration':
+                moduleName = FilenameUtils.removeExtension((new File(localConfigXmlPath)).getName());
+                // strip extension '_Local_Configuration':
+                if (moduleName.contains("_Local_Configuration")) {
                     int index = moduleName.indexOf("_Local_Configuration");
                     moduleName = moduleName.substring(0, index);
                 }
@@ -151,6 +149,7 @@ public class SceneGenerationModuleWrapper {
 
                     BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(),
                             StandardCharsets.UTF_8));
+
                     String line;
                     while ((line = reader.readLine()) != null) {
                         System.out.println(line);
