@@ -14,7 +14,9 @@
     <description>CIMR SCEPS tools</description>
 
     <modules>
+        <module>sceps-core</module>
         <module>osf-scene-generation-module-wrapper</module>
+        <module>devalgo-l2-module-wrapper</module>
     </modules>
 
 </project>
