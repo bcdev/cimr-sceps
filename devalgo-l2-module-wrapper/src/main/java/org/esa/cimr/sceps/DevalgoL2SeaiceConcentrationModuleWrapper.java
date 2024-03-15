@@ -13,12 +13,12 @@ import java.util.Arrays;
 import static org.esa.cimr.sceps.ScepsConstants.*;
 
 /**
- * Class containing the wrapper for the OSF Scene Generation Scientific Moduule.
+ * Class containing the wrapper for the Devalgo L2 Seaice Concentration Moduule.
  * This class shall:
  * - be made available as executable jar (see pom) to be called from openSF
  * (set as 'Executable' in corresponding openSF module General tab).
  * - properly transform openSF arguments/parameters to ScientificModule arguments/parameters
- * - do a system call to run the SGM Scientific Module in Matlab batch mode
+ * - do a system call to run the Seaice Concentration Scientific Module in Python
  */
 public class DevalgoL2SeaiceConcentrationModuleWrapper {
 
@@ -28,8 +28,6 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
 //            - global config file is <session folder>/GlobalConfiguration.xml, automatically copied from manual setting
 //            - local config file is <session folder>/<filename>.xml, automatically copied from manual setting
 //            --> these are passed as parameters to executable jar, so can we extract the openSF session folder from one of them
-//            --> equivalent to D:\olaf\bc\cimr\SCEPSscd\SCEPSdata\sessions\L1_Scene_Forward_Model_Simulation_GeoCard2_Day1 (variable 'sfo') where
-//                L1_Scene_Forward_Model_Simulation_GeoCard2_Day1 is the SESSION_ID defined in L1_Scene_Forward_Model_Simulation.m
 //
 //            - we need to let openSF know where the SCEPSscd software is located:
 //                        --> suggestion: set in global configuration: <scepsScdRoot>scepsScdRoot</scepsScdRoot>
@@ -44,10 +42,10 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
 //                        # input files 1..N
 //                        # output files 1..M
 
-//    java -jar /data/workspace/cimr-sceps/osf-scene-generation-module-wrapper/target/osf-scene-generation-module-wrapper-1.0-SNAPSHOT.jar
-//   /data/workspace/cimr-opensf/simulations/SCEPS_SceGen_test.20231229T192846d191/Global_Configuration.xml,
-//   /data/workspace/cimr-opensf/simulations/SCEPS_SceGen_test.20231229T192846d191/GeoInputs_Extract_Local_Configuration_geocard2_day1.xml
-//   /data/workspace/cimr-opensf/simulations/SCEPS_SceGen_test.20231229T192846d191/GeoInputs_Extract_Output
+//    java -jar /data/workspace/cimr-sceps/devalgo-l2-module-module-wrapper/target/devalgo-l2-module-wrapper-1.0-SNAPSHOT.jar
+//   /data/workspace/cimr-opensf/simulations/Global_Configuration.xml,
+//   /data/workspace/cimr-opensf/simulations/SCEPS_DevalgoL2SeaiceConcentration_test/Devalgo_L2_Seaice_Concentration_Local_Configuration_template.xml
+//   /data/workspace/cimr-opensf/simulations/SCEPS_DevalgoL2SeaiceConcentration_test/Devalgo_L2_Seaice_Concentration_Output
 
     /**
      * The wrapper main method.
