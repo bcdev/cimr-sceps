@@ -19,4 +19,9 @@ public class ScepsConstants {
     public static final String SCEPS_SCENE_TYPE_CONFIG_ITEM_NAME = "scene_type";
     public static final String SCEPS_SCENE_DATE_CONFIG_ITEM_NAME = "scene_date";
 
+    public static final String SCEPS_INPUT_DATA_FOLDER_CONFIG_ITEM_NAME = "input_data_folder";
+    public static final String SCEPS_INPUT_DATA_FILENAME_CONFIG_ITEM_NAME = "input_data_filename";
+    public static final String SCEPS_OUTPUT_DATA_FOLDER_CONFIG_ITEM_NAME = "output_data_folder";
+    public static final String SCEPS_OUTPUT_DATA_FILENAME_CONFIG_ITEM_NAME = "output_data_filename";
+
 }

@@ -58,7 +58,7 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
     public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("Wrong number of arguments given - must be one comma separated string containing " +
-                    "global and local config file, all input and output files. Exiting.");
+                                       "global and local config file, all input and output files. Exiting.");
             System.exit(1);
         } else {
             final String[] argConfigItems = args[0].split(",");
@@ -75,14 +75,16 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
             // set relevant paths:
             String scepsScdRoot;
             String moduleName;
-            String sceneType;
-            String sceneDate;
+            String inputDataFolder;
+            String outputDataFolder;
+            String inputDataFilename;
+
             final String globalConfigXmlPath = argConfigItems[0];
             final String localConfigXmlPath = argConfigItems[1];
             try {
                 final Document globalConfigDoc = ScepsConfig.readXMLDocumentFromFile(globalConfigXmlPath);
                 scepsScdRoot = ScepsConfig.getDocumentElementTextItemByName(globalConfigDoc,
-                        ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCD_ROOT_CONFIG_ITEM_NAME);
+                                                                            ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCD_ROOT_CONFIG_ITEM_NAME);
                 // this was added to global config:
                 // <parameter description="text" name="sceps_scd_root" type="STRING">/data/sceps/SCEPSscd</parameter>
 
@@ -96,12 +98,18 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
 
                 // we need SCENE_TYPE and SCENE_DATE as global variables from GeoInputs_Extract config:
                 // It's in GeoInputs_Extract config olny, thus this was added to Forward_Model local config:
-                sceneType = ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
-                        ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCENE_TYPE_CONFIG_ITEM_NAME);
-                sceneDate = ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
-                        ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCENE_DATE_CONFIG_ITEM_NAME);
-
-
+                inputDataFolder =
+                        ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
+                                                                     ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME,
+                                                                     SCEPS_INPUT_DATA_FOLDER_CONFIG_ITEM_NAME);
+                inputDataFilename =
+                        ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
+                                                                     ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME,
+                                                                     SCEPS_INPUT_DATA_FILENAME_CONFIG_ITEM_NAME);
+                outputDataFolder =
+                        ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
+                                                                     ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME,
+                                                                     SCEPS_INPUT_DATA_FOLDER_CONFIG_ITEM_NAME);
             } catch (Exception e) {
                 // todo
                 throw new RuntimeException(e);
@@ -120,22 +128,10 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
             String inputs = globalConfigXmlFile.getParent();  // everything is in the <openSF sessionFolder>
             String outputs = globalConfigXmlFile.getParent();  // same for outputs
 
-            final String matlabGlobalVariablesString = "global E2E_HOME; E2E_HOME = '" + dataSCEPSpath + "'; " +
-                    "global SCENE_TYPE; SCENE_TYPE = '" + sceneType + "'; " +
-                    "global SCENE_DATE; SCENE_DATE = '" + sceneDate + "'; " +
-                    "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" +
-                    outputs + File.separator + "GeoInputs_Extract'; " +
-                    "global LOG; LOG = Logger(); ";
-
             String[] commands = {
-                    "matlab",
-                    "-batch",
-                    "devSCEPSpath = '" + devSCEPSpath + "'; " +
-                            "addpath '" + devSCEPSpath + "'; " +
-                            "cd " + modulesParentName + "; " +
-                            "addpath '" + modulesParentName + "'; " +
-                            matlabGlobalVariablesString +
-                            moduleName + "('" + configurationParameters + "','" + inputs + "','" + outputs + "');"
+                    "cd " + modulesParentName + ";",
+                    "python ./" + moduleName + " " + inputDataFolder + File.separator + inputDataFilename + " -o " +
+                            outputDataFolder + ";",
             };
 
             String str = Arrays.toString(commands);
@@ -146,7 +142,7 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
                     Process process = Runtime.getRuntime().exec(commands);
 
                     BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(),
-                            StandardCharsets.UTF_8));
+                                                                                     StandardCharsets.UTF_8));
 
                     String line;
                     while ((line = reader.readLine()) != null) {
