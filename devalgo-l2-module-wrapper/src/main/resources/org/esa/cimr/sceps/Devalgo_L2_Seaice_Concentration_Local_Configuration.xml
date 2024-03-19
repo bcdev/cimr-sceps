@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Devalgo_L2_Seaice_Concentration_Local_Configuration version="0.1">
+    <parameter name="input_data_folder" description="" type="STRING">${E2E_HOME}/InputData/L2</parameter>
+    <parameter name="input_data_filename" description="" type="STRING">SCEPS_l1b_sceps_geo_polar_scene_1_unfiltered_tot_minimal_no_nedt.nc'</parameter>
+</Devalgo_L2_Seaice_Concentration_Local_Configuration>
+
+

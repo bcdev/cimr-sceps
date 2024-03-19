@@ -44,7 +44,7 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
 
 //    java -jar /data/workspace/cimr-sceps/devalgo-l2-module-module-wrapper/target/devalgo-l2-module-wrapper-1.0-SNAPSHOT.jar
 //   /data/workspace/cimr-opensf/simulations/Global_Configuration.xml,
-//   /data/workspace/cimr-opensf/simulations/SCEPS_DevalgoL2SeaiceConcentration_test/Devalgo_L2_Seaice_Concentration_Local_Configuration_template.xml
+//   /data/workspace/cimr-opensf/simulations/SCEPS_DevalgoL2SeaiceConcentration_test/Devalgo_L2_Seaice_Concentration_Local_Configuration.xml
 //   /data/workspace/cimr-opensf/simulations/SCEPS_DevalgoL2SeaiceConcentration_test/Devalgo_L2_Seaice_Concentration_Output
 
     /**
@@ -128,8 +128,11 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
             String inputs = globalConfigXmlFile.getParent();  // everything is in the <openSF sessionFolder>
             String outputs = globalConfigXmlFile.getParent();  // same for outputs
 
+            final String environmentVariablesString = "export E2E_HOME='" + dataSCEPSpath + "'; ";
+
             String[] commands = {
-                    "cd " + modulesParentName + ";",
+                    "cd " + modulesParentName + "; " +
+                    environmentVariablesString +
                     "python ./" + moduleName + " " + inputDataFolder + File.separator + inputDataFilename + " -o " +
                             outputDataFolder + ";",
             };

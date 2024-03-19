@@ -10,7 +10,7 @@ import java.util.Objects;
 
 import static org.junit.Assert.*;
 
-public class ScepsConfigTest {
+public class SceneGenerationModuleConfigTest {
 
     @Test
     public void testReadGeoInputsLocalConfigFile() {
