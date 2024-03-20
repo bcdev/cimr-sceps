@@ -36,7 +36,7 @@ public class DevalgoL2SeaiceConcentrationModuleConfigTest {
 
         NodeList nList = ScepsConfig.getDocumentElementsByTagName(document, "parameter");
         assertNotNull(nList);
-        assertEquals(2, nList.getLength());
+        assertEquals(1, nList.getLength());
 
         for (int i = 0; i < nList.getLength(); i++) {
             Node node = nList.item(i);
@@ -48,21 +48,11 @@ public class DevalgoL2SeaiceConcentrationModuleConfigTest {
         Element elem = (Element) nList.item(0);
         assertEquals(3, elem.getAttributes().getLength());
         assertEquals("", elem.getAttribute("description"));
-        assertEquals("input_data_folder", elem.getAttribute("name"));
+        assertEquals("l2_grid", elem.getAttribute("name"));
         assertEquals("STRING", elem.getAttribute("type"));
         assertNotNull(elem.getFirstChild());
         assertNotNull(elem.getFirstChild().getTextContent());
-        assertEquals("${E2E_HOME}/InputData/L2", elem.getFirstChild().getTextContent());
-
-        elem = (Element) nList.item(1);
-        assertEquals(3, elem.getAttributes().getLength());
-        assertEquals("", elem.getAttribute("description"));
-        assertEquals("input_data_filename", elem.getAttribute("name"));
-        assertEquals("STRING", elem.getAttribute("type"));
-        assertNotNull(elem.getFirstChild());
-        assertNotNull(elem.getFirstChild().getTextContent());
-        assertEquals("SCEPS_l1b_sceps_geo_polar_scene_1_unfiltered_tot_minimal_no_nedt.nc",
-                elem.getFirstChild().getTextContent());
+        assertEquals("testgrid", elem.getFirstChild().getTextContent());
 
         // todo: further fill config parameters if needed and continue testing here
     }

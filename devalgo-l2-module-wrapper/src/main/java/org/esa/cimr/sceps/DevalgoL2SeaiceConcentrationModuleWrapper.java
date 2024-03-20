@@ -58,7 +58,7 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
     public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("Wrong number of arguments given - must be one comma separated string containing " +
-                                       "global and local config file, all input and output files. Exiting.");
+                    "global and local config file, all input and output files. Exiting.");
             System.exit(1);
         } else {
             final String[] argConfigItems = args[0].split(",");
@@ -75,16 +75,17 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
             // set relevant paths:
             String scepsScdRoot;
             String moduleName;
-            String inputDataFolder;
-            String outputDataFolder;
-            String inputDataFilename;
+            String l2Grid;
+            String pythonScriptName;
 
             final String globalConfigXmlPath = argConfigItems[0];
             final String localConfigXmlPath = argConfigItems[1];
+            final String inputL1bPath = args[1];
+            final String outputL2Dir = args[2];
             try {
                 final Document globalConfigDoc = ScepsConfig.readXMLDocumentFromFile(globalConfigXmlPath);
                 scepsScdRoot = ScepsConfig.getDocumentElementTextItemByName(globalConfigDoc,
-                                                                            ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCD_ROOT_CONFIG_ITEM_NAME);
+                        ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCD_ROOT_CONFIG_ITEM_NAME);
                 // this was added to global config:
                 // <parameter description="text" name="sceps_scd_root" type="STRING">/data/sceps/SCEPSscd</parameter>
 
@@ -95,21 +96,14 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
                     int index = moduleName.indexOf("_Local_Configuration");
                     moduleName = moduleName.substring(0, index);
                 }
+                pythonScriptName = moduleName.toLowerCase() + ".py";
 
                 // we need SCENE_TYPE and SCENE_DATE as global variables from GeoInputs_Extract config:
                 // It's in GeoInputs_Extract config olny, thus this was added to Forward_Model local config:
-                inputDataFolder =
+                l2Grid =
                         ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
-                                                                     ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME,
-                                                                     SCEPS_INPUT_DATA_FOLDER_CONFIG_ITEM_NAME);
-                inputDataFilename =
-                        ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
-                                                                     ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME,
-                                                                     SCEPS_INPUT_DATA_FILENAME_CONFIG_ITEM_NAME);
-                outputDataFolder =
-                        ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
-                                                                     ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME,
-                                                                     SCEPS_INPUT_DATA_FOLDER_CONFIG_ITEM_NAME);
+                                ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME,
+                                SCEPS_DEVALGO_L2_L2GRID_CONFIG_ITEM_NAME);
             } catch (Exception e) {
                 // todo
                 throw new RuntimeException(e);
@@ -118,8 +112,8 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
             String devSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_CODES_FOLDER_NAME;
             String dataSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_DATA_FOLDER_NAME;
             String modulesParentName = devSCEPSpath + File.separator +
-                    ScepsConstants.SCENE_GENERATION_MODULE_FOLDER_NAME + File.separator +
-                    ScepsConstants.SCENE_GENERATION_MODULE_MODULES_SUBFOLDER_NAME;
+                    ScepsConstants.DEVALGO_L2_MODULE_FOLDER_NAME + File.separator +
+                    ScepsConstants.DEVALGO_L2_MODULE_MODULES_SUBFOLDER_NAME;
 
             // set relevant parameters to match module name signature (see e.g. GeoInputs_Extract.m):
             final File globalConfigXmlFile = new File(globalConfigXmlPath);
@@ -128,13 +122,23 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
             String inputs = globalConfigXmlFile.getParent();  // everything is in the <openSF sessionFolder>
             String outputs = globalConfigXmlFile.getParent();  // same for outputs
 
-            final String environmentVariablesString = "export E2E_HOME='" + dataSCEPSpath + "'; ";
+            final String environmentVariablesString = "export E2E_HOME=" + dataSCEPSpath;
+            String l2GridString = "";
+            if (l2Grid != null && l2Grid.length() > 0) {
+                l2GridString =  " -g " + l2Grid;
+            }
 
             String[] commands = {
-                    "cd " + modulesParentName + "; " +
-                    environmentVariablesString +
-                    "python ./" + moduleName + " " + inputDataFolder + File.separator + inputDataFilename + " -o " +
-                            outputDataFolder + ";",
+                    "/bin/sh",
+                    "-c",
+                    "cd " + modulesParentName + ";" +
+                            environmentVariablesString + ";" +
+                            "mkdir -p " + outputL2Dir + ";" +
+                            "python ./" +
+                            pythonScriptName +
+                            " -i " + inputL1bPath +
+                            " -o " + outputL2Dir +
+                            l2GridString + ";"
             };
 
             String str = Arrays.toString(commands);
@@ -145,7 +149,7 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
                     Process process = Runtime.getRuntime().exec(commands);
 
                     BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(),
-                                                                                     StandardCharsets.UTF_8));
+                            StandardCharsets.UTF_8));
 
                     String line;
                     while ((line = reader.readLine()) != null) {

@@ -30,7 +30,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>org.esa.cimr.sceps.DevalgoL2ModuleWrapper</mainClass>
+                  <mainClass>org.esa.cimr.sceps.DevalgoL2SeaiceConcentrationModuleWrapper</mainClass>
                 </transformer>
               </transformers>
             </configuration>
