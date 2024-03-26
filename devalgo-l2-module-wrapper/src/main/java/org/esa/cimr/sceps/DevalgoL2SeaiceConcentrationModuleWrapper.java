@@ -132,6 +132,27 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
                 l2GridString =  " -g " + l2Grid;
             }
 
+//            String[] commands = {
+//                    "/bin/sh",
+//                    "-c",
+//                    "cd " + modulesParentName + ";" +
+//                            environmentVariablesString + ";" +
+//                            "mkdir -p " + outputL2Dir + ";" +
+//                            "python ./" +
+//                            pythonScriptName +
+//                            " -i " + inputL1bPath +
+//                            " -o " + outputL2Dir +
+//                            l2GridString + ";"
+//            };
+
+            final String chdirCmd = "cd " + modulesParentName + " && ";
+            final String mkdirCmd = "mkdir " + outputL2Dir + " && ";
+            final String condaCmd = "D:\\olaf\\miniconda3_py39\\condabin\\conda.bat activate base && ";
+            final String pyCmd = "D:\\olaf\\miniconda3_py39\\python.exe ";
+            final String pyArgs =
+                    pythonScriptName + " -i " + inputL1bPath + " -o " + outputL2Dir + l2GridString;
+
+            // test sequence of remote commands on Windows:
             String[] commands = {
                     "/bin/sh",
                     "-c",
