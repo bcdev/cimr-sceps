@@ -10,6 +10,10 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import esa.opensf.osfi.CLP;
+import esa.opensf.osfi.Logger;
+import esa.opensf.osfi.ParamReader;
+
 import static org.esa.cimr.sceps.ScepsConstants.*;
 
 /**
@@ -132,7 +136,7 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
                     "/bin/sh",
                     "-c",
                     "cd " + modulesParentName + ";" +
-                            environmentVariablesString + ";" +
+//                            environmentVariablesString + ";" +
                             "mkdir -p " + outputL2Dir + ";" +
                             "python ./" +
                             pythonScriptName +
@@ -147,6 +151,7 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
             if (!simulation) {
                 try {
                     Process process = Runtime.getRuntime().exec(commands);
+                    process.waitFor();
 
                     BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(),
                             StandardCharsets.UTF_8));
@@ -155,11 +160,16 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
                     while ((line = reader.readLine()) != null) {
                         System.out.println(line);
                     }
-
+                    System.out.println("process.exitValue() = " + process.exitValue());
                     reader.close();
 
+                    if (process.exitValue() != 0) {
+                        throw new RuntimeException("Devalgo L2 Seaice Conc terminated with an error");
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
 

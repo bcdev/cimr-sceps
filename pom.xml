@@ -19,4 +19,12 @@
         <module>devalgo-l2-module-wrapper</module>
     </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.esa</groupId>
+            <artifactId>osfi</artifactId>
+            <version>3.9.1</version>
+        </dependency>
+    </dependencies>
+
 </project>
