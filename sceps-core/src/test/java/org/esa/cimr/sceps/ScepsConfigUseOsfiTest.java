@@ -18,10 +18,14 @@ import static org.junit.Assert.*;
 
 public class ScepsConfigUseOsfiTest {
 
-    CLP clp;
+    private CLP clp;
 
-    String globalConfigXmlPath;
-    String localConfigXmlPath;
+    private String globalConfigXmlPath;
+    private String localConfigXmlPath;
+    private String inputFile1;
+    private String inputFile2;
+    private String outputFile1;
+    private String outputFile2;
 
     @Before
     public void setUp() {
@@ -31,12 +35,12 @@ public class ScepsConfigUseOsfiTest {
                 Objects.requireNonNull(getClass().getResource("Some_Local_Configuration.xml")).getPath();
         final String configFiles = globalConfigXmlPath + "," + localConfigXmlPath;
 
-        final String inputFile1 = "/path/to/input1.txt";
-        final String inputFile2 = "/path/to/input2.csv";
+        inputFile1 = "/path/to/input1.txt";
+        inputFile2 = "/path/to/input2.csv";
         final String inputFiles = inputFile1 + "," + inputFile2;
 
-        final String outputFile1 = "/path/to/output1.nc";
-        final String outputFile2 = "/path/to/output2.png";
+        outputFile1 = "/path/to/output1.nc";
+        outputFile2 = "/path/to/output2.png";
         final String outputFiles = outputFile1 + "," + outputFile2;
 
         final String[] args = new String[]{configFiles, inputFiles, outputFiles};
@@ -66,6 +70,11 @@ public class ScepsConfigUseOsfiTest {
 
         assertEquals(globalConfigXmlPath, clpConfFiles.get(0));
         assertEquals(localConfigXmlPath, clpConfFiles.get(1));
+
+        assertEquals(inputFile1, clp.getInputFiles().get(0));
+        assertEquals(inputFile2, clp.getInputFiles().get(1));
+        assertEquals(outputFile1, clp.getOutputFiles().get(0));
+        assertEquals(outputFile2, clp.getOutputFiles().get(1));
 
         Logger.info("Finished testCLP.");
     }

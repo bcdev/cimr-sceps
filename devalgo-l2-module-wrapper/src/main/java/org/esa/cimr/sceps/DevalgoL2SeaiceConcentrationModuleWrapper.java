@@ -1,7 +1,9 @@
 package org.esa.cimr.sceps;
 
+import esa.opensf.osfi.CLP;
+import esa.opensf.osfi.Logger;
+import esa.opensf.osfi.ParamReader;
 import org.apache.commons.io.FilenameUtils;
-import org.w3c.dom.Document;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,11 +12,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import esa.opensf.osfi.CLP;
-import esa.opensf.osfi.Logger;
-import esa.opensf.osfi.ParamReader;
-
-import static org.esa.cimr.sceps.ScepsConstants.*;
+import static org.esa.cimr.sceps.ScepsConstants.SCEPS_DEVALGO_L2_L2GRID_CONFIG_ITEM_NAME;
+import static org.esa.cimr.sceps.ScepsConstants.SCEPS_SCD_ROOT_CONFIG_ITEM_NAME;
 
 /**
  * Class containing the wrapper for the Devalgo L2 Seaice Concentration Moduule.
@@ -61,39 +60,37 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
      */
     public static void main(String[] args) {
         if (args.length < 1) {
-            System.out.println("Wrong number of arguments given - must be one comma separated string containing " +
+            Logger.error("Wrong number of arguments given - must be one comma separated string containing " +
                     "global and local config file, all input and output files. Exiting.");
             System.exit(1);
         } else {
-            final String[] argConfigItems = args[0].split(",");
-
-            // 'simulation' mode for testing. Omits execution of the Matlab batch command.
+            // 'simulation' mode for testing. Omits execution of the Python batch command.
             final boolean simulation = args[args.length - 1].equals("simulation=true");
 
-            if (simulation) {
-                for (String arg : argConfigItems) {
-                    System.out.println("argItem = " + arg);
-                }
-            }
+            // get program arguments from OSFI command line parser:
+            final CLP clp = new CLP(args);
+
+            final String globalConfigXmlPath = clp.getConfFiles().get(0);
+            final String localConfigXmlPath = clp.getConfFiles().get(1);
+            final String inputL1bPath = clp.getInputFiles().get(0);
+            final String outputL2Dir = clp.getOutputFiles().get(0);
+
+            Logger.info("globalConfigXmlPath: " + globalConfigXmlPath);
+            Logger.info("localConfigXmlPath: " + localConfigXmlPath);
+            Logger.info("inputL1bPath: " + inputL1bPath);
+            Logger.info("outputL2Dir: " + outputL2Dir);
 
             // set relevant paths:
             String scepsScdRoot;
             String moduleName;
-            String l2Grid;
             String pythonScriptName;
-
-            final String globalConfigXmlPath = argConfigItems[0];
-            final String localConfigXmlPath = argConfigItems[1];
-            final String inputL1bPath = args[1];
-            final String outputL2Dir = args[2];
+            String l2Grid;
             try {
-                final Document globalConfigDoc = ScepsConfig.readXMLDocumentFromFile(globalConfigXmlPath);
-                scepsScdRoot = ScepsConfig.getDocumentElementTextItemByName(globalConfigDoc,
-                        ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCD_ROOT_CONFIG_ITEM_NAME);
                 // this was added to global config:
                 // <parameter description="text" name="sceps_scd_root" type="STRING">/data/sceps/SCEPSscd</parameter>
+                final ParamReader globalParamReader = new ParamReader(globalConfigXmlPath);
+                scepsScdRoot = globalParamReader.getParameter(SCEPS_SCD_ROOT_CONFIG_ITEM_NAME).getStringValue();
 
-                final Document localConfigDoc = ScepsConfig.readXMLDocumentFromFile(localConfigXmlPath);
                 moduleName = FilenameUtils.removeExtension((new File(localConfigXmlPath)).getName());
                 // strip extension '_Local_Configuration':
                 if (moduleName.contains("_Local_Configuration")) {
@@ -102,72 +99,57 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
                 }
                 pythonScriptName = moduleName.toLowerCase() + ".py";
 
-                // we need SCENE_TYPE and SCENE_DATE as global variables from GeoInputs_Extract config:
-                // It's in GeoInputs_Extract config olny, thus this was added to Forward_Model local config:
-                l2Grid =
-                        ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
-                                ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME,
-                                SCEPS_DEVALGO_L2_L2GRID_CONFIG_ITEM_NAME);
+                final ParamReader localParamReader = new ParamReader(localConfigXmlPath);
+                l2Grid = localParamReader.getParameter(SCEPS_DEVALGO_L2_L2GRID_CONFIG_ITEM_NAME).getStringValue();
             } catch (Exception e) {
                 // todo
                 throw new RuntimeException(e);
             }
 
             String devSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_CODES_FOLDER_NAME;
-            String dataSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_DATA_FOLDER_NAME;
             String modulesParentName = devSCEPSpath + File.separator +
                     ScepsConstants.DEVALGO_L2_MODULE_FOLDER_NAME + File.separator +
                     ScepsConstants.DEVALGO_L2_MODULE_MODULES_SUBFOLDER_NAME;
 
-            // set relevant parameters to match module name signature (see e.g. GeoInputs_Extract.m):
-            final File globalConfigXmlFile = new File(globalConfigXmlPath);
-
-            String configurationParameters = globalConfigXmlPath + "," + localConfigXmlPath;
-            String inputs = globalConfigXmlFile.getParent();  // everything is in the <openSF sessionFolder>
-            String outputs = globalConfigXmlFile.getParent();  // same for outputs
-
-            final String environmentVariablesString = "export E2E_HOME=" + dataSCEPSpath;
             String l2GridString = "";
-            if (l2Grid != null && l2Grid.length() > 0) {
-                l2GridString =  " -g " + l2Grid;
+            if (l2Grid != null && !l2Grid.isEmpty()) {
+                l2GridString = " -g " + l2Grid;
             }
 
-//            String[] commands = {
-//                    "/bin/sh",
-//                    "-c",
-//                    "cd " + modulesParentName + ";" +
-//                            environmentVariablesString + ";" +
-//                            "mkdir -p " + outputL2Dir + ";" +
-//                            "python ./" +
-//                            pythonScriptName +
-//                            " -i " + inputL1bPath +
-//                            " -o " + outputL2Dir +
-//                            l2GridString + ";"
-//            };
-
-            final String chdirCmd = "cd " + modulesParentName + " && ";
-            final String mkdirCmd = "mkdir " + outputL2Dir + " && ";
-            final String condaCmd = "D:\\olaf\\miniconda3_py39\\condabin\\conda.bat activate base && ";
-            final String pyCmd = "D:\\olaf\\miniconda3_py39\\python.exe ";
             final String pyArgs =
                     pythonScriptName + " -i " + inputL1bPath + " -o " + outputL2Dir + l2GridString;
 
             // test sequence of remote commands on Windows:
-            String[] commands = {
+            /*
+            final String chdirCmd = "cd " + modulesParentName + " && ";
+            final String mkdirCmd = "mkdir " + outputL2Dir + " && ";
+            final String condaCmd = "D:\\olaf\\miniconda3_py39\\condabin\\conda.bat activate base && ";
+            final String pyCmd = "D:\\olaf\\miniconda3_py39\\python.exe ";
+
+           String[] commands = {
+                    "cmd",
+                    "/c",
+//                    "start /b dir && ping localhost && echo end"
+//                    "start cmd.exe /K \"dir && ping localhost && echo end\""  // keeps cmd open
+//                    "start cmd.exe /C" +
+//                            "\"dir && ping localhost && echo end\""  // closes cmd after commands
+//                    "start cmd.exe /K " + chdirCmd + mkdirCmd + pyCmd + pyArgs
+                    chdirCmd + "start cmd.exe /C " + mkdirCmd + condaCmd + pyCmd + pyArgs
+//                    "start cmd.exe /C " + chdirCmd + mkdirCmd + pyCmd + " --version;"
+            };
+            */
+
+            // build commands for remote execution:
+            final String chdirCmdSh = "cd " + modulesParentName + " ; ";
+            final String mkdirCmdSh = "mkdir -p " + outputL2Dir + " ; ";
+            final String pyCmdSh = "python ";
+
+            final String[] commands = {
                     "/bin/sh",
                     "-c",
-                    "cd " + modulesParentName + ";" +
-//                            environmentVariablesString + ";" +
-                            "mkdir -p " + outputL2Dir + ";" +
-                            "python ./" +
-                            pythonScriptName +
-                            " -i " + inputL1bPath +
-                            " -o " + outputL2Dir +
-                            l2GridString + ";"
+                    chdirCmdSh + mkdirCmdSh + pyCmdSh + pyArgs + ";"
             };
-
-            String str = Arrays.toString(commands);
-            System.out.println("Command sequence: " + str);
+            Logger.info("Command sequence: " + Arrays.toString(commands));
 
             if (!simulation) {
                 try {
@@ -179,22 +161,18 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
 
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
+                        Logger.info(line);
                     }
-                    System.out.println("process.exitValue() = " + process.exitValue());
+                    Logger.info("Java Runtime.getRuntime(): exitValue = " + process.exitValue());
                     reader.close();
 
                     if (process.exitValue() != 0) {
-                        throw new RuntimeException("Devalgo L2 Seaice Conc terminated with an error");
+                        throw new RuntimeException("Devalgo L2 Seaice Conc Python process terminated with an error");
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                } catch (IOException | InterruptedException e) {
+                    Logger.error("Executing Devalgo L2 openSF simulation from Java wrapper failed: " + e.getMessage());
                 }
             }
-
-
         }
     }
 }

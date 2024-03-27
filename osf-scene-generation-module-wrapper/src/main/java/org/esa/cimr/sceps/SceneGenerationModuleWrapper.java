@@ -1,7 +1,9 @@
 package org.esa.cimr.sceps;
 
+import esa.opensf.osfi.CLP;
+import esa.opensf.osfi.Logger;
+import esa.opensf.osfi.ParamReader;
 import org.apache.commons.io.FilenameUtils;
-import org.w3c.dom.Document;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -59,36 +61,35 @@ public class SceneGenerationModuleWrapper {
      */
     public static void main(String[] args) {
         if (args.length < 1) {
-            System.out.println("Wrong number of arguments given - must be one comma separated string containing " +
+            Logger.error("Wrong number of arguments given - must be one comma separated string containing " +
                     "global and local config file, all input and output files. Exiting.");
             System.exit(1);
         } else {
-            final String[] argConfigItems = args[0].split(",");
-
             // 'simulation' mode for testing. Omits execution of the Matlab batch command.
             final boolean simulation = args[args.length - 1].equals("simulation=true");
 
-            if (simulation) {
-                for (String arg : argConfigItems) {
-                    System.out.println("argItem = " + arg);
-                }
-            }
+            // get program arguments from OSFI command line parser:
+            final CLP clp = new CLP(args);
+
+            // We only parse config files but ignore inputs and outputs.
+            // They are set explicitly below, following the needs of the two Matlab modules.
+            final String globalConfigXmlPath = clp.getConfFiles().get(0);
+            final String localConfigXmlPath = clp.getConfFiles().get(1);
+
+            Logger.info("globalConfigXmlPath: " + globalConfigXmlPath);
+            Logger.info("localConfigXmlPath: " + localConfigXmlPath);
 
             // set relevant paths:
             String scepsScdRoot;
             String moduleName;
             String sceneType;
             String sceneDate;
-            final String globalConfigXmlPath = argConfigItems[0];
-            final String localConfigXmlPath = argConfigItems[1];
             try {
-                final Document globalConfigDoc = ScepsConfig.readXMLDocumentFromFile(globalConfigXmlPath);
-                scepsScdRoot = ScepsConfig.getDocumentElementTextItemByName(globalConfigDoc,
-                        ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCD_ROOT_CONFIG_ITEM_NAME);
                 // this was added to global config:
                 // <parameter description="text" name="sceps_scd_root" type="STRING">/data/sceps/SCEPSscd</parameter>
+                final ParamReader globalParamReader = new ParamReader(globalConfigXmlPath);
+                scepsScdRoot = globalParamReader.getParameter(SCEPS_SCD_ROOT_CONFIG_ITEM_NAME).getStringValue();
 
-                final Document localConfigDoc = ScepsConfig.readXMLDocumentFromFile(localConfigXmlPath);
                 moduleName = FilenameUtils.removeExtension((new File(localConfigXmlPath)).getName());
                 // strip extension '_Local_Configuration':
                 if (moduleName.contains("_Local_Configuration")) {
@@ -97,72 +98,72 @@ public class SceneGenerationModuleWrapper {
                 }
 
                 // we need SCENE_TYPE and SCENE_DATE as global variables from GeoInputs_Extract config:
-                // It's in GeoInputs_Extract config olny, thus this was added to Forward_Model local config:
-                sceneType = ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
-                        ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCENE_TYPE_CONFIG_ITEM_NAME);
-                sceneDate = ScepsConfig.getDocumentElementTextItemByName(localConfigDoc,
-                        ScepsConstants.SCEPS_CONFIG_ELEMENTS_TAG_NAME, SCEPS_SCENE_DATE_CONFIG_ITEM_NAME);
-
-
+                // It's in GeoInputs_Extract config only, thus this was added to Forward_Model local config:
+                final ParamReader localParamReader = new ParamReader(localConfigXmlPath);
+                sceneType = localParamReader.getParameter(SCEPS_SCENE_TYPE_CONFIG_ITEM_NAME).getStringValue();
+                sceneDate = localParamReader.getParameter(SCEPS_SCENE_DATE_CONFIG_ITEM_NAME).getStringValue();
             } catch (Exception e) {
                 // todo
                 throw new RuntimeException(e);
             }
 
-            String devSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_CODES_FOLDER_NAME;
-            String dataSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_DATA_FOLDER_NAME;
-            String modulesParentName = devSCEPSpath + File.separator +
+            final String devSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_CODES_FOLDER_NAME;
+            final String dataSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_DATA_FOLDER_NAME;
+            final String modulesParentName = devSCEPSpath + File.separator +
                     ScepsConstants.SCENE_GENERATION_MODULE_FOLDER_NAME + File.separator +
                     ScepsConstants.SCENE_GENERATION_MODULE_MODULES_SUBFOLDER_NAME;
 
             // set relevant parameters to match module name signature (see e.g. GeoInputs_Extract.m):
+            final String configurationParameters = globalConfigXmlPath + "," + localConfigXmlPath;
             final File globalConfigXmlFile = new File(globalConfigXmlPath);
+            // 'inputs' are ignored by both GeoInputs_Extract and Forward_Model Matlab modules
+            // only constraint is that outputs of GeoInputs_Extract must be inputs of Forward_Model
+            // Thus, if we set everything to <openSF sessionFolder>, we are fine
+            final String inputs = globalConfigXmlFile.getParent();  // this IS the <openSF sessionFolder>,
+            final String outputs = globalConfigXmlFile.getParent();  // same for outputs
 
-            String configurationParameters = globalConfigXmlPath + "," + localConfigXmlPath;
-            String inputs = globalConfigXmlFile.getParent();  // everything is in the <openSF sessionFolder>
-            String outputs = globalConfigXmlFile.getParent();  // same for outputs
-
-            final String matlabGlobalVariablesString = "global E2E_HOME; E2E_HOME = '" + dataSCEPSpath + "'; " +
+            final String scepsPathCmdSh = "devSCEPSpath = '" + devSCEPSpath + "'; ";
+            final String addpath1CmdSh = "addpath '" + devSCEPSpath + "'; ";
+            final String chdirCmdSh = "cd " + modulesParentName + "; ";
+            final String addpath2CmdSh = "addpath '" + modulesParentName + "'; ";
+            final String matlabGlobalVarsString = "global E2E_HOME; E2E_HOME = '" + dataSCEPSpath + "'; " +
                     "global SCENE_TYPE; SCENE_TYPE = '" + sceneType + "'; " +
                     "global SCENE_DATE; SCENE_DATE = '" + sceneDate + "'; " +
                     "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" +
                     outputs + File.separator + "GeoInputs_Extract'; " +
                     "global LOG; LOG = Logger(); ";
 
-            String[] commands = {
+            final String[] commands = {
                     "matlab",
                     "-batch",
-                    "devSCEPSpath = '" + devSCEPSpath + "'; " +
-                            "addpath '" + devSCEPSpath + "'; " +
-                            "cd " + modulesParentName + "; " +
-                            "addpath '" + modulesParentName + "'; " +
-                            matlabGlobalVariablesString +
+                    scepsPathCmdSh + addpath1CmdSh + chdirCmdSh + addpath2CmdSh + matlabGlobalVarsString +
                             moduleName + "('" + configurationParameters + "','" + inputs + "','" + outputs + "');"
             };
-
-            String str = Arrays.toString(commands);
-            System.out.println("Command sequence: " + str);
+            Logger.info("Command sequence: " + Arrays.toString(commands));
 
             if (!simulation) {
                 try {
                     Process process = Runtime.getRuntime().exec(commands);
+                    process.waitFor();
 
                     BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(),
                             StandardCharsets.UTF_8));
 
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
+                        Logger.info(line);
                     }
-
+                    Logger.info("Java Runtime.getRuntime(): exitValue = " + process.exitValue());
                     reader.close();
 
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    if (process.exitValue() != 0) {
+                        throw new RuntimeException("SceGen Matlab process terminated with an error");
+                    }
+
+                } catch (IOException | InterruptedException e) {
+                    Logger.error("Executing SceGen openSF simulation from Java wrapper failed: " + e.getMessage());
                 }
             }
-
-
         }
     }
 }

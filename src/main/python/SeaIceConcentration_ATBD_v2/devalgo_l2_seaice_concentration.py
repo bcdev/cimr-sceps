@@ -8,6 +8,13 @@ import papermill as pm
 from datetime import date
 from dateutil.relativedelta import *
 
+# for this, Python OSFI scripts must be in OSFI Python folder two levels above.
+# TODO: Check if finally needed.
+if os.path.abspath('../..') + '/OSFI/Python' not in sys.path:
+    sys.path.insert(0, os.path.abspath('../..') + '/OSFI/Python')
+
+import Logger
+
 default_l2_dir = '.'
 default_l2_grid = 'ease2-2.5km-arctic'
 
@@ -21,7 +28,6 @@ def run_notebook(l1b_path, l2_dir = default_l2_dir, l2_grid = default_l2_grid):
     print("Call {} with params\n\t{}".format(notebook, notebook_par))
 
     _ = pm.execute_notebook(notebook,notebook_out,parameters=notebook_par)
-    # _ = pm.execute_notebook(notebook,notebook_out,progress_bar=True, log_output=True, parameters=notebook_par)
 
 
 if __name__ == '__main__':
@@ -40,10 +46,18 @@ if __name__ == '__main__':
     # run the L2 SIC algorithm via the notebook
     try:
         run_notebook(args.i, args.o, args.g)
+        Logger.finishExecution(0)
+        sys.exit(0);
+
+        # test for openSF: do not run the NB, just exit with error
+        #Logger.finishExecution(0)
+        #sys.exit(0);
     except pm.exceptions.PapermillExecutionError as pme:
         print(pme)
+        Logger.finishExecution(1)
         sys.exit("Failed with Papermill Execution Error")
     except Exception as ex:
         print(ex)
+        Logger.finishExecution(1)
         sys.exit("Failed with general exception.")
 
