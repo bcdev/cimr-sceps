@@ -4,6 +4,7 @@ import esa.opensf.osfi.CLP;
 import esa.opensf.osfi.Logger;
 import esa.opensf.osfi.ParamReader;
 import org.apache.commons.io.FilenameUtils;
+import org.esa.cimr.sceps.util.ScepsUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -59,7 +60,7 @@ public class SceneGenerationModuleWrapper {
      *             # second string: <full paths of input files 1..N>,<full paths of output files 1..M>
      *             # Optionally, a 'simulation' mode can be set: last arg is 'simulation=true'
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length < 1) {
             Logger.error("Wrong number of arguments given - must be one comma separated string containing " +
                     "global and local config file, all input and output files. Exiting.");
@@ -70,6 +71,10 @@ public class SceneGenerationModuleWrapper {
 
             // get program arguments from OSFI command line parser:
             final CLP clp = new CLP(args);
+
+            // check if args are complete and correctly parsed.
+            // Must contain global and local config, inputs, and outputs
+            ScepsUtils.checkCommandLineArgs(clp);
 
             // We only parse config files but ignore inputs and outputs.
             // They are set explicitly below, following the needs of the two Matlab modules.
@@ -118,25 +123,47 @@ public class SceneGenerationModuleWrapper {
             final File globalConfigXmlFile = new File(globalConfigXmlPath);
             // 'inputs' are ignored by both GeoInputs_Extract and Forward_Model Matlab modules
             // only constraint is that outputs of GeoInputs_Extract must be inputs of Forward_Model
-            // Thus, if we set everything to <openSF sessionFolder>, we are fine
-            final String inputs = globalConfigXmlFile.getParent();  // this IS the <openSF sessionFolder>,
+            // Thus, if we set everything to <openSF simulation folder>, we are fine
+            // todo: this setup does not allow to run the Forward_Model independently in openSF,
+            // using output from a previous GeoInputs_Extract. The SceGen simulation in openSF
+            // must contain both modules. Changing this would probably require changes in the Matlab code.
+            // Find out if needed. (However, GeoInputs_Extract is short compared to Forward_Model,
+            // no issue to repeat.)
+            final String inputs = globalConfigXmlFile.getParent();  // this IS the <openSF simulation folder>,
             final String outputs = globalConfigXmlFile.getParent();  // same for outputs
+
+            // GeoInputs_Extract: inputs = globalConfigXmlFile.getParent();
+            // GeoInputs_Extract: outputs = clp.getOutputFiles.get(0);
+            // Forward_Model: inputs = clp.getInputFiles.get(0);
+            // Forward_Model: outputs = clp.getOutputFiles.get(0);
+//            final String inputs =
+//                    clp.getInputFiles() != null ? clp.getInputFiles().get(0) : globalConfigXmlFile.getParent();
+//
+//            String outputs;
+//            if (clp.getOutputFiles() != null ) {
+//                outputs = clp.getOutputFiles().get(0);
+//            } else {
+//                throw new IOException("No output file(s) specified in command line arguments.");
+//            }
 
             final String scepsPathCmdSh = "devSCEPSpath = '" + devSCEPSpath + "'; ";
             final String addpath1CmdSh = "addpath '" + devSCEPSpath + "'; ";
             final String chdirCmdSh = "cd " + modulesParentName + "; ";
+            final String mkdirCmdSh = "mkdir -p " + outputs + " ; ";
             final String addpath2CmdSh = "addpath '" + modulesParentName + "'; ";
             final String matlabGlobalVarsString = "global E2E_HOME; E2E_HOME = '" + dataSCEPSpath + "'; " +
                     "global SCENE_TYPE; SCENE_TYPE = '" + sceneType + "'; " +
                     "global SCENE_DATE; SCENE_DATE = '" + sceneDate + "'; " +
                     "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" +
                     outputs + File.separator + "GeoInputs_Extract'; " +
+//                    new File(outputs).getParent() + File.separator + "GeoInputs_Extract'; " +
+//                    outputs.replace("Forward_Model", "GeoInputs_Extract") + "'; " +
                     "global LOG; LOG = Logger(); ";
 
             final String[] commands = {
                     "matlab",
                     "-batch",
-                    scepsPathCmdSh + addpath1CmdSh + chdirCmdSh + addpath2CmdSh + matlabGlobalVarsString +
+                    scepsPathCmdSh + addpath1CmdSh + chdirCmdSh + mkdirCmdSh + addpath2CmdSh + matlabGlobalVarsString +
                             moduleName + "('" + configurationParameters + "','" + inputs + "','" + outputs + "');"
             };
             Logger.info("Command sequence: " + Arrays.toString(commands));
@@ -161,7 +188,7 @@ public class SceneGenerationModuleWrapper {
                     }
 
                 } catch (IOException | InterruptedException e) {
-                    Logger.error("Executing SceGen openSF simulation from Java wrapper failed: " + e.getMessage());
+                    throw new RuntimeException("Executing SceGen openSF simulation from Java wrapper failed: " + e.getMessage());
                 }
             }
         }

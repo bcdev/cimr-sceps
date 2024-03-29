@@ -4,6 +4,7 @@ import esa.opensf.osfi.CLP;
 import esa.opensf.osfi.Logger;
 import esa.opensf.osfi.ParamReader;
 import org.apache.commons.io.FilenameUtils;
+import org.esa.cimr.sceps.util.ScepsUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -70,6 +71,10 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
             // get program arguments from OSFI command line parser:
             final CLP clp = new CLP(args);
 
+            // check if args are complete and correctly parsed.
+            // Must contain global and local config, inputs, and outputs
+            ScepsUtils.checkCommandLineArgs(clp);
+
             final String globalConfigXmlPath = clp.getConfFiles().get(0);
             final String localConfigXmlPath = clp.getConfFiles().get(1);
             final String inputL1bPath = clp.getInputFiles().get(0);
@@ -106,8 +111,8 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
                 throw new RuntimeException(e);
             }
 
-            String devSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_CODES_FOLDER_NAME;
-            String modulesParentName = devSCEPSpath + File.separator +
+            final String devSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_CODES_FOLDER_NAME;
+            final String modulesParentName = devSCEPSpath + File.separator +
                     ScepsConstants.DEVALGO_L2_MODULE_FOLDER_NAME + File.separator +
                     ScepsConstants.DEVALGO_L2_MODULE_MODULES_SUBFOLDER_NAME;
 

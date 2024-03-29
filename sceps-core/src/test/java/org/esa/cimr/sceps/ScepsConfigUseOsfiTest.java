@@ -18,14 +18,15 @@ import static org.junit.Assert.*;
 
 public class ScepsConfigUseOsfiTest {
 
-    private CLP clp;
-
     private String globalConfigXmlPath;
     private String localConfigXmlPath;
     private String inputFile1;
     private String inputFile2;
     private String outputFile1;
     private String outputFile2;
+    private String inputFiles;
+    private String outputFiles;
+    private String configFiles;
 
     @Before
     public void setUp() {
@@ -33,18 +34,15 @@ public class ScepsConfigUseOsfiTest {
                 Objects.requireNonNull(getClass().getResource("Global_Configuration.xml")).getPath();
         localConfigXmlPath =
                 Objects.requireNonNull(getClass().getResource("Some_Local_Configuration.xml")).getPath();
-        final String configFiles = globalConfigXmlPath + "," + localConfigXmlPath;
+        configFiles = globalConfigXmlPath + "," + localConfigXmlPath;
 
         inputFile1 = "/path/to/input1.txt";
         inputFile2 = "/path/to/input2.csv";
-        final String inputFiles = inputFile1 + "," + inputFile2;
+        inputFiles = inputFile1 + "," + inputFile2;
 
         outputFile1 = "/path/to/output1.nc";
         outputFile2 = "/path/to/output2.png";
-        final String outputFiles = outputFile1 + "," + outputFile2;
-
-        final String[] args = new String[]{configFiles, inputFiles, outputFiles};
-        clp = new CLP(args);
+        outputFiles = outputFile1 + "," + outputFile2;
     }
 
     @After
@@ -55,6 +53,9 @@ public class ScepsConfigUseOsfiTest {
     @Test
     public void testCLP() {
         Logger.info("Starting testCLP...");
+
+        final String[] args = new String[]{configFiles, inputFiles, outputFiles};
+        CLP clp = new CLP(args);
 
         final List<String> clpConfFiles = clp.getConfFiles();
         final List<String> clpInputFiles = clp.getInputFiles();
@@ -147,7 +148,7 @@ public class ScepsConfigUseOsfiTest {
             assertEquals("FLOAT", zenithAngleParam.getElementType().name());
             assertEquals("freqsxscans", zenithAngleParam.getDescription());
             final double[] expectedZenithAngles = new double[]{40, 55, 55, 55, 55};
-            assertArrayEquals(expectedFrequencies, frequencyParam.getRootNode().getTreeDouble().getData(), 1.E-6);
+            assertArrayEquals(expectedZenithAngles, zenithAngleParam.getRootNode().getTreeDouble().getData(), 1.E-6);
 
         } catch (FileNotFoundException | XmlParseException e) {
             Logger.error("testReadLocalConfigFile failed!");
