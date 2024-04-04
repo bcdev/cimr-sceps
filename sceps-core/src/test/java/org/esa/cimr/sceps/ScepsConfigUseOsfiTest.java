@@ -148,7 +148,7 @@ public class ScepsConfigUseOsfiTest {
             assertEquals("FLOAT", zenithAngleParam.getElementType().name());
             assertEquals("freqsxscans", zenithAngleParam.getDescription());
             final double[] expectedZenithAngles = new double[]{40, 55, 55, 55, 55};
-            assertArrayEquals(expectedZenithAngles, zenithAngleParam.getRootNode().getTreeDouble().getData(), 1.E-6);
+            assertArrayEquals(expectedZenithAngles, zenithAngleParam.getVectorDouble(), 1.E-6);
 
         } catch (FileNotFoundException | XmlParseException e) {
             Logger.error("testReadLocalConfigFile failed!");
