@@ -1,5 +1,7 @@
 package org.esa.cimr.sceps;
 
+import java.io.File;
+
 /**
  * Constants for cimr.sceps module
  *
@@ -10,9 +12,15 @@ public class ScepsConstants {
 
     public static final String SCEPS_CONFIG_ELEMENTS_TAG_NAME = "parameter";
     public static final String SCEPS_CODES_FOLDER_NAME = "SCEPScodes";
+    public static final String SCEPS_CODES_OSFI_MATLAB_FOLDER_NAME =
+             "OSFI" + File.separator + "Matlab";
+    public static final String SCEPS_CODES_GENERAL_SUBMODULES_FOLDER_NAME =
+            "General" + File.separator + "SubModules";
     public static final String SCEPS_DATA_FOLDER_NAME = "SCEPSdata";
+
     public static final String SCENE_GENERATION_MODULE_FOLDER_NAME = "SceGenMod";
     public static final String SCENE_GENERATION_MODULE_MODULES_SUBFOLDER_NAME = "Modules";
+    public static final String SCENE_GENERATION_MODULE_SUBMODULES_SUBFOLDER_NAME = "SubModules";
     public static final String DEVALGO_L2_MODULE_FOLDER_NAME = "Devalgo_L2";
     public static final String DEVALGO_L2_MODULE_MODULES_SUBFOLDER_NAME = "Modules";
 

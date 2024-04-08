@@ -114,9 +114,12 @@ public class SceneGenerationModuleWrapper {
 
             final String devSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_CODES_FOLDER_NAME;
             final String dataSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_DATA_FOLDER_NAME;
-            final String modulesParentName = devSCEPSpath + File.separator +
+            final String modulesParentPath = devSCEPSpath + File.separator +
                     ScepsConstants.SCENE_GENERATION_MODULE_FOLDER_NAME + File.separator +
                     ScepsConstants.SCENE_GENERATION_MODULE_MODULES_SUBFOLDER_NAME;
+            final String subModulesParentPath = devSCEPSpath + File.separator +
+                    ScepsConstants.SCENE_GENERATION_MODULE_FOLDER_NAME + File.separator +
+                    ScepsConstants.SCENE_GENERATION_MODULE_SUBMODULES_SUBFOLDER_NAME;
 
             // set relevant parameters to match module name signature (see e.g. GeoInputs_Extract.m):
             final String configurationParameters = globalConfigXmlPath + "," + localConfigXmlPath;
@@ -147,10 +150,16 @@ public class SceneGenerationModuleWrapper {
 //            }
 
             final String scepsPathCmdSh = "devSCEPSpath = '" + devSCEPSpath + "'; ";
-            final String addpath1CmdSh = "addpath '" + devSCEPSpath + "'; ";
-            final String chdirCmdSh = "cd " + modulesParentName + "; ";
+            final String addpath1CmdSh =
+                    "addpath '" + devSCEPSpath + File.separator + SCEPS_CODES_GENERAL_SUBMODULES_FOLDER_NAME +  "'; ";
+            final String addpath2CmdSh =
+                    "addpath '" + devSCEPSpath + File.separator + SCEPS_CODES_OSFI_MATLAB_FOLDER_NAME + "'; ";
+            final String addpath3CmdSh =
+                    "addpath '" + devSCEPSpath + File.separator + "SceGenMod" + File.separator + "Modules'; ";
+            final String addpath4CmdSh =
+                    "addpath '" + devSCEPSpath + File.separator + "SceGenMod" + File.separator + "SubModules'; ";
+            final String chdirCmdSh = "cd " + modulesParentPath + "; ";
             final String mkdirCmdSh = "mkdir -p " + outputs + " ; ";
-            final String addpath2CmdSh = "addpath '" + modulesParentName + "'; ";
             final String matlabGlobalVarsString = "global E2E_HOME; E2E_HOME = '" + dataSCEPSpath + "'; " +
                     "global SCENE_TYPE; SCENE_TYPE = '" + sceneType + "'; " +
                     "global SCENE_DATE; SCENE_DATE = '" + sceneDate + "'; " +
@@ -163,7 +172,9 @@ public class SceneGenerationModuleWrapper {
             final String[] commands = {
                     "matlab",
                     "-batch",
-                    scepsPathCmdSh + addpath1CmdSh + chdirCmdSh + mkdirCmdSh + addpath2CmdSh + matlabGlobalVarsString +
+                    scepsPathCmdSh +
+                            addpath1CmdSh  + addpath2CmdSh  + addpath3CmdSh  + addpath4CmdSh +
+                            chdirCmdSh + mkdirCmdSh + matlabGlobalVarsString +
                             moduleName + "('" + configurationParameters + "','" + inputs + "','" + outputs + "');"
             };
             Logger.info("Command sequence: " + Arrays.toString(commands));
