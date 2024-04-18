@@ -60,7 +60,7 @@ public class SceneGenerationModuleWrapper {
      *             # second string: <full paths of input files 1..N>,<full paths of output files 1..M>
      *             # Optionally, a 'simulation' mode can be set: last arg is 'simulation=true'
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         if (args.length < 1) {
             Logger.error("Wrong number of arguments given - must be one comma separated string containing " +
                     "global and local config file, all input and output files. Exiting.");
@@ -73,7 +73,7 @@ public class SceneGenerationModuleWrapper {
             final CLP clp = new CLP(args);
 
             // check if args are complete and correctly parsed.
-            // Must contain global and local config, inputs, and outputs
+            // Must contain global and local config, inputs and outputs are optional
             ScepsUtils.checkCommandLineArgs(clp);
 
             // We only parse config files but ignore inputs and outputs.
@@ -93,7 +93,7 @@ public class SceneGenerationModuleWrapper {
                 // this was added to global config:
                 // <parameter description="text" name="sceps_scd_root" type="STRING">/data/sceps/SCEPSscd</parameter>
                 final ParamReader globalParamReader = new ParamReader(globalConfigXmlPath);
-                scepsScdRoot = globalParamReader.getParameter(SCEPS_SCD_ROOT_CONFIG_ITEM_NAME).getStringValue();
+                scepsScdRoot = globalParamReader.getParameter("E2E_HOME").getStringValue();
 
                 moduleName = FilenameUtils.removeExtension((new File(localConfigXmlPath)).getName());
                 // strip extension '_Local_Configuration':
@@ -132,6 +132,7 @@ public class SceneGenerationModuleWrapper {
             // must contain both modules. Changing this would probably require changes in the Matlab code.
             // Find out if needed. (However, GeoInputs_Extract is short compared to Forward_Model,
             // no issue to repeat.)
+
             final String inputs = globalConfigXmlFile.getParent();  // this IS the <openSF simulation folder>,
             final String outputs = globalConfigXmlFile.getParent();  // same for outputs
 
@@ -151,16 +152,17 @@ public class SceneGenerationModuleWrapper {
 
             final String scepsPathCmdSh = "devSCEPSpath = '" + devSCEPSpath + "'; ";
             final String addpath1CmdSh =
-                    "addpath '" + devSCEPSpath + File.separator + SCEPS_CODES_GENERAL_SUBMODULES_FOLDER_NAME +  "'; ";
+                    "addpath '" + devSCEPSpath + File.separator + SCEPS_CODES_GENERAL_SUBMODULES_FOLDER_NAME + "'; ";
             final String addpath2CmdSh =
                     "addpath '" + devSCEPSpath + File.separator + SCEPS_CODES_OSFI_MATLAB_FOLDER_NAME + "'; ";
             final String addpath3CmdSh =
-                    "addpath '" + devSCEPSpath + File.separator + "SceGenMod" + File.separator + "Modules'; ";
+                    "addpath '" + modulesParentPath + "'; ";
             final String addpath4CmdSh =
-                    "addpath '" + devSCEPSpath + File.separator + "SceGenMod" + File.separator + "SubModules'; ";
+                    "addpath '" + subModulesParentPath + "'; ";
             final String chdirCmdSh = "cd " + modulesParentPath + "; ";
             final String mkdirCmdSh = "mkdir -p " + outputs + " ; ";
-            final String matlabGlobalVarsString = "global E2E_HOME; E2E_HOME = '" + dataSCEPSpath + "'; " +
+//            final String matlabGlobalVarsString = "global E2E_HOME; E2E_HOME = '" + dataSCEPSpath + "'; " +
+            final String matlabGlobalVarsString = "global E2E_HOME; E2E_HOME = '" + scepsScdRoot + "'; " +
                     "global SCENE_TYPE; SCENE_TYPE = '" + sceneType + "'; " +
                     "global SCENE_DATE; SCENE_DATE = '" + sceneDate + "'; " +
                     "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" +
@@ -173,7 +175,7 @@ public class SceneGenerationModuleWrapper {
                     "matlab",
                     "-batch",
                     scepsPathCmdSh +
-                            addpath1CmdSh  + addpath2CmdSh  + addpath3CmdSh  + addpath4CmdSh +
+                            addpath1CmdSh + addpath2CmdSh + addpath3CmdSh + addpath4CmdSh +
                             chdirCmdSh + mkdirCmdSh + matlabGlobalVarsString +
                             moduleName + "('" + configurationParameters + "','" + inputs + "','" + outputs + "');"
             };

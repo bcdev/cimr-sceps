@@ -10,17 +10,14 @@ import esa.opensf.osfi.CLP;
 public class ScepsUtils {
 
     /**
-     * dummy
+     * Checks if required OSFI command line arguments exist.
      *
+     * @param clp - OSFI command line parser object.
      */
-    public static void doSomething() {
-        System.out.println();
-    }
-
     public static void checkCommandLineArgs(CLP clp) {
-        if (clp.getConfFiles().isEmpty() || clp.getInputFiles().isEmpty() || clp.getOutputFiles().isEmpty()) {
+        if (clp.getConfFiles().isEmpty()) {
             throw new IllegalArgumentException("Invalid arguments passed to wrapper executable. " +
-                    "Make sure that global and local config, inputs, and outputs are specified.");
+                    "Make sure that at least global and local config are specified.");
         }
     }
 }
