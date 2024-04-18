@@ -15,7 +15,8 @@
 
     <modules>
         <module>sceps-core</module>
-        <module>osf-scene-generation-module-wrapper</module>
+        <module>sceps-opensf-sce-gen-mod-wrapper</module>
+        <module>sceps-opensf-obs-sim-mod-wrapper</module>
         <module>devalgo-l2-module-wrapper</module>
     </modules>
 
