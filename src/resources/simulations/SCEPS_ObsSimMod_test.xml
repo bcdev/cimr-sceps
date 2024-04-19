@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><openSF_definition dbVersion="7.0">
+    <descriptors>
+        <descriptor>
+            <field name="id">Input_Orb_Geoloc_Extract</field>
+            <field name="description">Input files read by the Orbit_Geolocation_Extract Module.
+</field>
+            <field name="noFiles">0</field>
+        </descriptor>
+        <descriptor>
+            <field name="id">Output_Orb_Geoloc_Extract</field>
+            <field name="description">Output directory of the Orbit_Geolocation_Extract Module.</field>
+            <field name="noFiles">1</field>
+        </descriptor>
+        <descriptor>
+            <field name="id">Output_Sensor_Apply_Ant</field>
+            <field name="description">Output directory of the Sensor_Apply_Antenna Module.</field>
+            <field name="noFiles">1</field>
+        </descriptor>
+    </descriptors>
+    <ios>
+        <io>
+            <field name="descriptorId">Output_Orb_Geoloc_Extract</field>
+            <field name="place">0</field>
+            <field name="id">Orbit_Geolocation_Extract_Output</field>
+            <field name="description">Orbit Geolocation extraction output directory</field>
+        </io>
+        <io>
+            <field name="descriptorId">Output_Sensor_Apply_Ant</field>
+            <field name="place">0</field>
+            <field name="id">Sensor_Apply_Antenna_Output</field>
+            <field name="description">Sensor_Apply_Antenna output directory</field>
+        </io>
+    </ios>
+    <tools/>
+    <modules>
+        <module>
+            <field name="id">Orb_Geoloc_Extract</field>
+            <field name="version">1.0</field>
+            <field name="description">Observing System Simulation: Orbit Geolocation Extraction Module</field>
+            <field name="author">OD</field>
+            <field name="sourceFile"/>
+            <field name="binaryFile">SCEPScodes/ObsSimMod/openSF/sceps-opensf-obs-sim-mod-wrapper-1.0-SNAPSHOT.jar</field>
+            <field name="defaultConfFile">SCEPScodes/ObsSimMod/ConfigFiles/Orbit_Geolocation_Extract/Orbit_Geolocation_Extract_Local_Configuration_geocard2_day1.xml</field>
+            <field name="inputId">Input_Orb_Geoloc_Extract</field>
+            <field name="outputId">Output_Orb_Geoloc_Extract</field>
+        </module>
+        <module>
+            <field name="id">Sensor_Apply_Antenna</field>
+            <field name="version">1.0</field>
+            <field name="description">Observing System Simulation: Sensor Apply Antenna Module</field>
+            <field name="author">OD</field>
+            <field name="sourceFile"/>
+            <field name="binaryFile">SCEPScodes/ObsSimMod/openSF/sceps-opensf-obs-sim-mod-wrapper-1.0-SNAPSHOT.jar</field>
+            <field name="defaultConfFile">SCEPScodes/ObsSimMod/ConfigFiles/Sensor_Apply_Antenna/Sensor_Apply_Antenna_Local_Configuration_geocard2_day1.xml</field>
+            <field name="inputId">Output_Orb_Geoloc_Extract</field>
+            <field name="outputId">Output_Sensor_Apply_Ant</field>
+        </module>
+    </modules>
+    <simulations>
+        <simulation>
+            <field name="id">SCEPS_ObsSimMod_test</field>
+            <field name="description">Scene Generation Test Simulation.</field>
+            <field name="author">OD</field>
+            <field name="status">NotStarted</field>
+            <field name="breakpoints"/>
+            <field name="duration">0</field>
+            <field name="executionMode">SINGLE</field>
+            <field name="removeIntermData">0</field>
+            <field name="hashCode">-1058495960</field>
+            <field name="userMode">DEVELOPER</field>
+        </simulation>
+    </simulations>
+    <moduleofsimulations>
+        <moduleofsimulation>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="place">0</field>
+            <field name="moduleId">Orb_Geoloc_Extract</field>
+            <field name="moduleVersion">1.0</field>
+            <field name="executionMode">Simulation</field>
+            <field name="active">1</field>
+        </moduleofsimulation>
+        <moduleofsimulation>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="place">1</field>
+            <field name="moduleId">Sensor_Apply_Antenna</field>
+            <field name="moduleVersion">1.0</field>
+            <field name="executionMode">Simulation</field>
+            <field name="active">1</field>
+        </moduleofsimulation>
+    </moduleofsimulations>
+    <paramofsimulations>
+        <paramofsimulation>
+            <field name="id">E2E_HOME</field>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">-1</field>
+            <field name="type">STRING</field>
+            <field name="description">text</field>
+            <field name="units"/>
+            <field name="xmin"/>
+            <field name="xmax"/>
+            <field name="dims"/>
+            <field name="valuesList">"/data/sceps/SCEPSscd"</field>
+            <field name="paramPlace">0</field>
+            <field name="visible">1</field>
+        </paramofsimulation>
+        <paramofsimulation>
+            <field name="id">geodata_version</field>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">-1</field>
+            <field name="type">STRING</field>
+            <field name="description">text</field>
+            <field name="units"/>
+            <field name="xmin"/>
+            <field name="xmax"/>
+            <field name="dims"/>
+            <field name="valuesList">"v1.3"</field>
+            <field name="paramPlace">1</field>
+            <field name="visible">1</field>
+        </paramofsimulation>
+        <paramofsimulation>
+            <field name="id">software_version</field>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">-1</field>
+            <field name="type">STRING</field>
+            <field name="description">text</field>
+            <field name="units"/>
+            <field name="xmin"/>
+            <field name="xmax"/>
+            <field name="dims"/>
+            <field name="valuesList">"v1.3"</field>
+            <field name="paramPlace">2</field>
+            <field name="visible">1</field>
+        </paramofsimulation>
+        <paramofsimulation>
+            <field name="id">workers_number</field>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">-1</field>
+            <field name="type">INTEGER</field>
+            <field name="description">text</field>
+            <field name="units"/>
+            <field name="xmin"/>
+            <field name="xmax"/>
+            <field name="dims"/>
+            <field name="valuesList">0</field>
+            <field name="paramPlace">3</field>
+            <field name="visible">1</field>
+        </paramofsimulation>
+        <paramofsimulation>
+            <field name="id">orbit_file_name</field>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">0</field>
+            <field name="type">STRING</field>
+            <field name="description"/>
+            <field name="units"/>
+            <field name="xmin"/>
+            <field name="xmax"/>
+            <field name="dims"/>
+            <field name="valuesList">"OSS_CMR_TEST_MPL_ORBSCT_20280101T180001_99999999T999999_0001"</field>
+            <field name="paramPlace">0</field>
+            <field name="visible">1</field>
+        </paramofsimulation>
+        <paramofsimulation>
+            <field name="id">orbit_folder</field>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">0</field>
+            <field name="type">STRING</field>
+            <field name="description"/>
+            <field name="units"/>
+            <field name="xmin"/>
+            <field name="xmax"/>
+            <field name="dims"/>
+            <field name="valuesList">"E2E_HOME/SCEPSdata/InputData/OrbitData/SCEPS"</field>
+            <field name="paramPlace">1</field>
+            <field name="visible">1</field>
+        </paramofsimulation>
+        <paramofsimulation>
+            <field name="id">scene_file_name</field>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">0</field>
+            <field name="type">STRING</field>
+            <field name="description"/>
+            <field name="units"/>
+            <field name="xmin"/>
+            <field name="xmax"/>
+            <field name="dims"/>
+            <field name="valuesList">"Forward_Model_Output_20161217_BTS_aa_000"</field>
+            <field name="paramPlace">2</field>
+            <field name="visible">1</field>
+        </paramofsimulation>
+        <paramofsimulation>
+            <field name="id">scene_folder</field>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">0</field>
+            <field name="type">STRING</field>
+            <field name="description"/>
+            <field name="units"/>
+            <field name="xmin"/>
+            <field name="xmax"/>
+            <field name="dims"/>
+            <field name="valuesList">"E2E_HOME/SCEPSdata/sessionsTests/L1_Scene_Forward_Model_Simulation_GeoCard2_Day1/Forward_Model_Output"</field>
+            <field name="paramPlace">3</field>
+            <field name="visible">1</field>
+        </paramofsimulation>
+        <paramofsimulation>
+            <field name="id">dummy</field>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">1</field>
+            <field name="type">STRING</field>
+            <field name="description"/>
+            <field name="units"/>
+            <field name="xmin"/>
+            <field name="xmax"/>
+            <field name="dims"/>
+            <field name="valuesList">"dummy"</field>
+            <field name="paramPlace">0</field>
+            <field name="visible">1</field>
+        </paramofsimulation>
+    </paramofsimulations>
+    <ioofsimulations>
+        <ioofsimulation>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">1</field>
+            <field name="ioPlace">0</field>
+            <field name="type">Input</field>
+            <field name="location">Orbit_Geolocation_Extract_Output</field>
+            <field name="source">Sensor_Apply_Antenna (1.0)</field>
+        </ioofsimulation>
+        <ioofsimulation>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">0</field>
+            <field name="ioPlace">0</field>
+            <field name="type">Output</field>
+            <field name="location">Orbit_Geolocation_Extract_Output</field>
+            <field name="source">Orb_Geoloc_Extract (1.0)</field>
+        </ioofsimulation>
+        <ioofsimulation>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">1</field>
+            <field name="ioPlace">0</field>
+            <field name="type">Output</field>
+            <field name="location">Sensor_Apply_Antenna_Output</field>
+            <field name="source">Sensor_Apply_Antenna (1.0)</field>
+        </ioofsimulation>
+        <ioofsimulation>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">-1</field>
+            <field name="ioPlace">-1</field>
+            <field name="type">Configuration</field>
+            <field name="location">SCEPScodes/General/ConfigFiles/Global_Configuration.xml</field>
+            <field name="source">SCEPS_ObsSimMod_test</field>
+        </ioofsimulation>
+        <ioofsimulation>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">0</field>
+            <field name="ioPlace">0</field>
+            <field name="type">Configuration</field>
+            <field name="location">SCEPScodes/ObsSimMod/ConfigFiles/Orbit_Geolocation_Extract/Orbit_Geolocation_Extract_Local_Configuration_geocard2_day1.xml</field>
+            <field name="source">Orb_Geoloc_Extract (1.0)</field>
+        </ioofsimulation>
+        <ioofsimulation>
+            <field name="simulationId">SCEPS_ObsSimMod_test</field>
+            <field name="modulePlace">1</field>
+            <field name="ioPlace">0</field>
+            <field name="type">Configuration</field>
+            <field name="location">SCEPScodes/ObsSimMod/ConfigFiles/Sensor_Apply_Antenna/Sensor_Apply_Antenna_Local_Configuration_geocard2_day1.xml</field>
+            <field name="source">Sensor_Apply_Antenna (1.0)</field>
+        </ioofsimulation>
+    </ioofsimulations>
+    <toolofsimulations/>
+    <timeofsimulations/>
+    <simulation_multiexecs/>
+</openSF_definition>
