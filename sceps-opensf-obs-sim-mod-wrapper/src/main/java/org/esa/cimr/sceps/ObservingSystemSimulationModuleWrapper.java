@@ -63,10 +63,10 @@ public class ObservingSystemSimulationModuleWrapper {
             // set relevant paths:
             String scepsScdRoot;
             String moduleName;
-            String sceneFolder;
-            String sceneFileName;
-            String orbitFolder;
-            String orbitFileName;
+            String sceneFolder = "none";
+            String sceneFileName = "none";
+            String orbitFolder = "none";
+            String orbitFileName = "none";
             try {
                 // this was added to global config:
                 // <parameter description="text" name="sceps_scd_root" type="STRING">/data/sceps/SCEPSscd</parameter>
@@ -83,10 +83,12 @@ public class ObservingSystemSimulationModuleWrapper {
                 // we need SCENE_TYPE and SCENE_DATE as global variables from GeoInputs_Extract config:
                 // It's in GeoInputs_Extract config only, thus this was added to Forward_Model local config:
                 final ParamReader localParamReader = new ParamReader(localConfigXmlPath);
-                sceneFolder = localParamReader.getParameter(SCEPS_SCENE_FOLDER_CONFIG_ITEM_NAME).getStringValue();
-                sceneFileName = localParamReader.getParameter(SCEPS_SCENE_FILENAME_CONFIG_ITEM_NAME).getStringValue();
-                orbitFolder = localParamReader.getParameter(SCEPS_ORBIT_FOLDER_CONFIG_ITEM_NAME).getStringValue();
-                orbitFileName = localParamReader.getParameter(SCEPS_ORBIT_FILENAME_CONFIG_ITEM_NAME).getStringValue();
+                if (moduleName.equals("Orbit_Geolocation_Extract")) {
+                    sceneFolder = localParamReader.getParameter(SCEPS_SCENE_FOLDER_CONFIG_ITEM_NAME).getStringValue();
+                    sceneFileName = localParamReader.getParameter(SCEPS_SCENE_FILENAME_CONFIG_ITEM_NAME).getStringValue();
+                    orbitFolder = localParamReader.getParameter(SCEPS_ORBIT_FOLDER_CONFIG_ITEM_NAME).getStringValue();
+                    orbitFileName = localParamReader.getParameter(SCEPS_ORBIT_FILENAME_CONFIG_ITEM_NAME).getStringValue();
+                }
             } catch (Exception e) {
                 // todo
                 throw new RuntimeException(e);
