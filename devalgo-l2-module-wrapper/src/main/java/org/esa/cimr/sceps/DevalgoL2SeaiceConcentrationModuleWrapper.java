@@ -114,7 +114,7 @@ public class DevalgoL2SeaiceConcentrationModuleWrapper {
             final String devSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_CODES_FOLDER_NAME;
             final String modulesParentName = devSCEPSpath + File.separator +
                     ScepsConstants.DEVALGO_L2_MODULE_FOLDER_NAME + File.separator +
-                    ScepsConstants.DEVALGO_L2_MODULE_MODULES_SUBFOLDER_NAME;
+                    ScepsConstants.MODULES_SUBFOLDER_NAME;
 
             String l2GridString = "";
             if (l2Grid != null && !l2Grid.isEmpty()) {

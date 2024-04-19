@@ -63,8 +63,10 @@ public class ObservingSystemSimulationModuleWrapper {
             // set relevant paths:
             String scepsScdRoot;
             String moduleName;
-            String sceneType;
-            String sceneDate;
+            String sceneFolder;
+            String sceneFileName;
+            String orbitFolder;
+            String orbitFileName;
             try {
                 // this was added to global config:
                 // <parameter description="text" name="sceps_scd_root" type="STRING">/data/sceps/SCEPSscd</parameter>
@@ -81,8 +83,10 @@ public class ObservingSystemSimulationModuleWrapper {
                 // we need SCENE_TYPE and SCENE_DATE as global variables from GeoInputs_Extract config:
                 // It's in GeoInputs_Extract config only, thus this was added to Forward_Model local config:
                 final ParamReader localParamReader = new ParamReader(localConfigXmlPath);
-                sceneType = localParamReader.getParameter(SCEPS_SCENE_TYPE_CONFIG_ITEM_NAME).getStringValue();
-                sceneDate = localParamReader.getParameter(SCEPS_SCENE_DATE_CONFIG_ITEM_NAME).getStringValue();
+                sceneFolder = localParamReader.getParameter(SCEPS_SCENE_FOLDER_CONFIG_ITEM_NAME).getStringValue();
+                sceneFileName = localParamReader.getParameter(SCEPS_SCENE_FILENAME_CONFIG_ITEM_NAME).getStringValue();
+                orbitFolder = localParamReader.getParameter(SCEPS_ORBIT_FOLDER_CONFIG_ITEM_NAME).getStringValue();
+                orbitFileName = localParamReader.getParameter(SCEPS_ORBIT_FILENAME_CONFIG_ITEM_NAME).getStringValue();
             } catch (Exception e) {
                 // todo
                 throw new RuntimeException(e);
@@ -90,11 +94,11 @@ public class ObservingSystemSimulationModuleWrapper {
 
             final String devSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_CODES_FOLDER_NAME;
             final String modulesParentPath = devSCEPSpath + File.separator +
-                    ScepsConstants.SCENE_GENERATION_MODULE_FOLDER_NAME + File.separator +
-                    ScepsConstants.SCENE_GENERATION_MODULE_MODULES_SUBFOLDER_NAME;
+                    ScepsConstants.OBSERVING_SYSTEM_SIMULATION_MODULE_FOLDER_NAME + File.separator +
+                    ScepsConstants.MODULES_SUBFOLDER_NAME;
             final String subModulesParentPath = devSCEPSpath + File.separator +
-                    ScepsConstants.SCENE_GENERATION_MODULE_FOLDER_NAME + File.separator +
-                    ScepsConstants.SCENE_GENERATION_MODULE_SUBMODULES_SUBFOLDER_NAME;
+                    ScepsConstants.OBSERVING_SYSTEM_SIMULATION_MODULE_FOLDER_NAME + File.separator +
+                    ScepsConstants.MODULE_SUBMODULES_SUBFOLDER_NAME;
 
             // set relevant parameters to match module name signature (see e.g. GeoInputs_Extract.m):
             final String configurationParameters = globalConfigXmlPath + "," + localConfigXmlPath;
@@ -114,9 +118,12 @@ public class ObservingSystemSimulationModuleWrapper {
                     "addpath '" + subModulesParentPath + "'; ";
             final String chdirCmdSh = "cd " + modulesParentPath + "; ";
             final String mkdirCmdSh = "mkdir -p " + outputs + " ; ";
-            final String matlabGlobalVarsString = "global E2E_HOME; E2E_HOME = '" + scepsScdRoot + "'; " +
-                    "global SCENE_TYPE; SCENE_TYPE = '" + sceneType + "'; " +
-                    "global SCENE_DATE; SCENE_DATE = '" + sceneDate + "'; " +
+            final String matlabGlobalVarsString =
+                    "global E2E_HOME; E2E_HOME = '" + scepsScdRoot + "'; " +
+                    "global SCENE_FOLDER; SCENE_FOLDER = '" + sceneFolder + "'; " +
+                    "global SCENE_FILE_NAME; SCENE_FILE_NAME = '" + sceneFileName + "'; " +
+                    "global ORBIT_FOLDER; ORBIT_FOLDER = '" + orbitFolder + "'; " +
+                    "global ORBIT_FILE_NAME; ORBIT_FILE_NAME = '" + orbitFileName + "'; " +
                     "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" +
                     outputs + File.separator + "Orbit_Geolocation_Extract'; " +
                     "global LOG; LOG = Logger(); ";

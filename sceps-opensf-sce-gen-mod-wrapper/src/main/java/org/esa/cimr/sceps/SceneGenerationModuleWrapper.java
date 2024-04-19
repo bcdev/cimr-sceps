@@ -119,10 +119,10 @@ public class SceneGenerationModuleWrapper {
             final String dataSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_DATA_FOLDER_NAME;
             final String modulesParentPath = devSCEPSpath + File.separator +
                     ScepsConstants.SCENE_GENERATION_MODULE_FOLDER_NAME + File.separator +
-                    ScepsConstants.SCENE_GENERATION_MODULE_MODULES_SUBFOLDER_NAME;
+                    ScepsConstants.MODULES_SUBFOLDER_NAME;
             final String subModulesParentPath = devSCEPSpath + File.separator +
                     ScepsConstants.SCENE_GENERATION_MODULE_FOLDER_NAME + File.separator +
-                    ScepsConstants.SCENE_GENERATION_MODULE_SUBMODULES_SUBFOLDER_NAME;
+                    ScepsConstants.MODULE_SUBMODULES_SUBFOLDER_NAME;
 
             // set relevant parameters to match module name signature (see e.g. GeoInputs_Extract.m):
             final String configurationParameters = globalConfigXmlPath + "," + localConfigXmlPath;
