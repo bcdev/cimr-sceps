@@ -22,7 +22,6 @@ import static org.esa.cimr.sceps.ScepsConstants.*;
  * (set as 'Executable' in corresponding openSF module General tab).
  * - properly transform openSF arguments/parameters to ScientificModule arguments/parameters
  * - do a system call to run the underlying Scientific Module in Matlab batch mode
- *
  * In the CIMR SCEPS context, this wrapper will usually be called twice, subsequently for the two
  * scientific modules Orbit_Geolocation_Extract and 'Sensor_Apply_Antenna'.
  */
@@ -36,7 +35,7 @@ public class ObservingSystemSimulationModuleWrapper {
      *             # second string: <full paths of input files 1..N>,<full paths of output files 1..M>
      *             # Optionally, a 'simulation' mode can be set: last arg is 'simulation=true'
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length < 1) {
             Logger.error("Wrong number of arguments given - must be one comma separated string containing " +
                     "global and local config file, all input and output files. Exiting.");
@@ -63,10 +62,6 @@ public class ObservingSystemSimulationModuleWrapper {
             // set relevant paths:
             String scepsScdRoot;
             String moduleName;
-            String sceneFolder = "none";
-            String sceneFileName = "none";
-            String orbitFolder = "none";
-            String orbitFileName = "none";
             try {
                 // this was added to global config:
                 // <parameter description="text" name="sceps_scd_root" type="STRING">/data/sceps/SCEPSscd</parameter>
@@ -81,14 +76,8 @@ public class ObservingSystemSimulationModuleWrapper {
                 }
 
                 // we need SCENE_TYPE and SCENE_DATE as global variables from GeoInputs_Extract config:
-                // It's in GeoInputs_Extract config only, thus this was added to Forward_Model local config:
-                final ParamReader localParamReader = new ParamReader(localConfigXmlPath);
-                if (moduleName.equals("Orbit_Geolocation_Extract")) {
-                    sceneFolder = localParamReader.getParameter(SCEPS_SCENE_FOLDER_CONFIG_ITEM_NAME).getStringValue();
-                    sceneFileName = localParamReader.getParameter(SCEPS_SCENE_FILENAME_CONFIG_ITEM_NAME).getStringValue();
-                    orbitFolder = localParamReader.getParameter(SCEPS_ORBIT_FOLDER_CONFIG_ITEM_NAME).getStringValue();
-                    orbitFileName = localParamReader.getParameter(SCEPS_ORBIT_FILENAME_CONFIG_ITEM_NAME).getStringValue();
-                }
+                // variable for local config, activate when needed
+                // final ParamReader localParamReader = new ParamReader(localConfigXmlPath);
             } catch (Exception e) {
                 // todo
                 throw new RuntimeException(e);
@@ -106,28 +95,30 @@ public class ObservingSystemSimulationModuleWrapper {
             final String configurationParameters = globalConfigXmlPath + "," + localConfigXmlPath;
             final File globalConfigXmlFile = new File(globalConfigXmlPath);
 
-            final String inputs = globalConfigXmlFile.getParent();  // this is the <openSF simulation folder>,
-            final String outputs = globalConfigXmlFile.getParent();  // same for outputs
+            final String outputs = globalConfigXmlFile.getParent() + File.separator + moduleName;
+            String inputs;
+            if (moduleName.equals(ScepsConstants.ORBIT_GEOLOCATION_EXTRACT_MODULE_NAME)) {
+                inputs = ScepsUtils.clpInputsJava2Matlab(clp.getInputFiles());
+            } else if (moduleName.equals(ScepsConstants.SENSOR_APPLY_ANTENNA_MODULE_NAME)) {
+                inputs = globalConfigXmlFile.getParent() + File.separator + moduleName;
+            } else {
+                throw new IOException("Module name " + moduleName + " not known.");
+            }
+            Logger.info("moduleName: " + moduleName);
+            Logger.info("inputs: " + inputs);
+            Logger.info("outputs: " + outputs);
 
             final String scepsPathCmdSh = "devSCEPSpath = '" + devSCEPSpath + "'; ";
             final String addpath1CmdSh =
                     "addpath '" + devSCEPSpath + File.separator + SCEPS_CODES_GENERAL_SUBMODULES_FOLDER_NAME + "'; ";
             final String addpath2CmdSh =
                     "addpath '" + devSCEPSpath + File.separator + SCEPS_CODES_OSFI_MATLAB_FOLDER_NAME + "'; ";
-            final String addpath3CmdSh =
-                    "addpath '" + modulesParentPath + "'; ";
-            final String addpath4CmdSh =
-                    "addpath '" + subModulesParentPath + "'; ";
+            final String addpath3CmdSh = "addpath '" + modulesParentPath + "'; ";
+            final String addpath4CmdSh = "addpath '" + subModulesParentPath + "'; ";
             final String chdirCmdSh = "cd " + modulesParentPath + "; ";
-            final String mkdirCmdSh = "mkdir -p " + outputs + " ; ";
             final String matlabGlobalVarsString =
                     "global E2E_HOME; E2E_HOME = '" + scepsScdRoot + "'; " +
-                    "global SCENE_FOLDER; SCENE_FOLDER = '" + sceneFolder + "'; " +
-                    "global SCENE_FILE_NAME; SCENE_FILE_NAME = '" + sceneFileName + "'; " +
-                    "global ORBIT_FOLDER; ORBIT_FOLDER = '" + orbitFolder + "'; " +
-                    "global ORBIT_FILE_NAME; ORBIT_FILE_NAME = '" + orbitFileName + "'; " +
-                    "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" +
-                    outputs + File.separator + "Orbit_Geolocation_Extract'; " +
+                    "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" + outputs + "'; " +
                     "global LOG; LOG = Logger(); ";
 
             final String[] commands = {
@@ -135,7 +126,7 @@ public class ObservingSystemSimulationModuleWrapper {
                     "-batch",
                     scepsPathCmdSh +
                             addpath1CmdSh + addpath2CmdSh + addpath3CmdSh + addpath4CmdSh +
-                            chdirCmdSh + mkdirCmdSh + matlabGlobalVarsString +
+                            chdirCmdSh + matlabGlobalVarsString +
                             moduleName + "('" + configurationParameters + "','" + inputs + "','" + outputs + "');"
             };
             Logger.info("Command sequence: " + Arrays.toString(commands));

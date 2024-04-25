@@ -19,7 +19,9 @@ public class ScepsConstants {
 
     public static final String SCENE_GENERATION_MODULE_FOLDER_NAME = "SceGenMod";
     public static final String OBSERVING_SYSTEM_SIMULATION_MODULE_FOLDER_NAME = "ObsSimMod";
-    public static final String DEVALGO_L2_MODULE_FOLDER_NAME = "Devalgo_L2";
+    public static final String DEVALGO_L2_MODULE_NAME = "Devalgo_L2";
+    public static final String ORBIT_GEOLOCATION_EXTRACT_MODULE_NAME = "Orbit_Geolocation_Extract";
+    public static final String SENSOR_APPLY_ANTENNA_MODULE_NAME = "Sensor_Apply_Antenna";
     public static final String MODULES_SUBFOLDER_NAME = "Modules";
     public static final String MODULE_SUBMODULES_SUBFOLDER_NAME = "SubModules";
 
