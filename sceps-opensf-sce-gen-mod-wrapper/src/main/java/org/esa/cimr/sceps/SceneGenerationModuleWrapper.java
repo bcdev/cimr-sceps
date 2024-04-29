@@ -63,7 +63,7 @@ public class SceneGenerationModuleWrapper {
      *             # second string: <full paths of input files 1..N>,<full paths of output files 1..M>
      *             # Optionally, a 'simulation' mode can be set: last arg is 'simulation=true'
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length < 1) {
             Logger.error("Wrong number of arguments given - must be one comma separated string containing " +
                     "global and local config file, all input and output files. Exiting.");
@@ -127,61 +127,48 @@ public class SceneGenerationModuleWrapper {
             // set relevant parameters to match module name signature (see e.g. GeoInputs_Extract.m):
             final String configurationParameters = globalConfigXmlPath + "," + localConfigXmlPath;
             final File globalConfigXmlFile = new File(globalConfigXmlPath);
-            // 'inputs' are ignored by both GeoInputs_Extract and Forward_Model Matlab modules
-            // only constraint is that outputs of GeoInputs_Extract must be inputs of Forward_Model
-            // Thus, if we set everything to <openSF simulation folder>, we are fine
-            // todo: this setup does not allow to run the Forward_Model independently in openSF,
-            // using output from a previous GeoInputs_Extract. The SceGen simulation in openSF
-            // must contain both modules. Changing this would probably require changes in the Matlab code.
-            // Find out if needed. (However, GeoInputs_Extract is short compared to Forward_Model,
-            // no issue to repeat.)
+            final String geoinputSimulationOutputFolder = globalConfigXmlFile.getParent() + File.separator +
+                    GEOINPUTS_EXTRACT_MODULE_NAME + "_Output";
+            final String geoinputSimulationMatlabGlobal = geoinputSimulationOutputFolder + File.separator +
+                    GEOINPUTS_EXTRACT_MODULE_NAME;
 
-            final String inputs = globalConfigXmlFile.getParent();  // this IS the <openSF simulation folder>,
-            final String outputs = globalConfigXmlFile.getParent();  // same for outputs
-
-            // GeoInputs_Extract: inputs = globalConfigXmlFile.getParent();
-            // GeoInputs_Extract: outputs = clp.getOutputFiles.get(0);
-            // Forward_Model: inputs = clp.getInputFiles.get(0);
-            // Forward_Model: outputs = clp.getOutputFiles.get(0);
-//            final String inputs =
-//                    clp.getInputFiles() != null ? clp.getInputFiles().get(0) : globalConfigXmlFile.getParent();
-//
-//            String outputs;
-//            if (clp.getOutputFiles() != null ) {
-//                outputs = clp.getOutputFiles().get(0);
-//            } else {
-//                throw new IOException("No output file(s) specified in command line arguments.");
-//            }
+            final String outputs = globalConfigXmlFile.getParent() + File.separator + moduleName + "_Output";
+            String inputs;
+            if (moduleName.equals(ScepsConstants.GEOINPUTS_EXTRACT_MODULE_NAME)) {
+                inputs = ScepsUtils.clpInputsJava2Matlab(clp.getInputFiles());
+            } else if (moduleName.equals(FORWARD_MODEL_MODULE_NAME)) {
+                inputs = geoinputSimulationOutputFolder;
+            } else {
+                throw new IOException("Module name " + moduleName + " not known.");
+            }
+            Logger.info("moduleName: " + moduleName);
+            Logger.info("inputs: " + inputs);
+            Logger.info("outputs: " + outputs);
 
             final String scepsPathCmdSh = "devSCEPSpath = '" + devSCEPSpath + "'; ";
             final String addpath1CmdSh =
                     "addpath '" + devSCEPSpath + File.separator + SCEPS_CODES_GENERAL_SUBMODULES_FOLDER_NAME + "'; ";
             final String addpath2CmdSh =
                     "addpath '" + devSCEPSpath + File.separator + SCEPS_CODES_OSFI_MATLAB_FOLDER_NAME + "'; ";
-            final String addpath3CmdSh =
-                    "addpath '" + modulesParentPath + "'; ";
-            final String addpath4CmdSh =
-                    "addpath '" + subModulesParentPath + "'; ";
+            final String addpath3CmdSh = "addpath '" + modulesParentPath + "'; ";
+            final String addpath4CmdSh = "addpath '" + subModulesParentPath + "'; ";
             final String chdirCmdSh = "cd " + modulesParentPath + "; ";
-            final String mkdirCmdSh = "mkdir -p " + outputs + " ; ";
-//            final String matlabGlobalVarsString = "global E2E_HOME; E2E_HOME = '" + dataSCEPSpath + "'; " +
-            final String matlabGlobalVarsString = "global E2E_HOME; E2E_HOME = '" + scepsScdRoot + "'; " +
-                    "global SCENE_TYPE; SCENE_TYPE = '" + sceneType + "'; " +
-                    "global SCENE_DATE; SCENE_DATE = '" + sceneDate + "'; " +
-                    "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" +
-                    outputs + File.separator + "GeoInputs_Extract'; " +
-//                    new File(outputs).getParent() + File.separator + "GeoInputs_Extract'; " +
-//                    outputs.replace("Forward_Model", "GeoInputs_Extract") + "'; " +
-                    "global LOG; LOG = Logger(); ";
+            final String matlabGlobalVarsString =
+                    "global E2E_HOME; E2E_HOME = '" + scepsScdRoot + "'; " +
+                            "global SCENE_TYPE; SCENE_TYPE = '" + sceneType + "'; " +
+                            "global SCENE_DATE; SCENE_DATE = '" + sceneDate + "'; " +
+                            "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" + geoinputSimulationMatlabGlobal + "'; " +
+                            "global LOG; LOG = Logger(); ";
 
             final String[] commands = {
                     "matlab",
                     "-batch",
                     scepsPathCmdSh +
                             addpath1CmdSh + addpath2CmdSh + addpath3CmdSh + addpath4CmdSh +
-                            chdirCmdSh + mkdirCmdSh + matlabGlobalVarsString +
+                            chdirCmdSh + matlabGlobalVarsString +
                             moduleName + "('" + configurationParameters + "','" + inputs + "','" + outputs + "');"
             };
+
             Logger.info("Command sequence: " + Arrays.toString(commands));
 
             if (!simulation) {

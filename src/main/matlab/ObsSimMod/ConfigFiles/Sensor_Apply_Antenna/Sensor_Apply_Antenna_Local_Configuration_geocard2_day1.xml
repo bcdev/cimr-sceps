@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Sensor_Apply_Antenna_Local_Configuration version="0.1">
+	<parameter name="dummy" description="" type="STRING">dummy</parameter>
+</Sensor_Apply_Antenna_Local_Configuration>

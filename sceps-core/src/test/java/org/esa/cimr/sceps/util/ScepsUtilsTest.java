@@ -26,4 +26,15 @@ public class ScepsUtilsTest {
         final String expected = "abc,def,ghi";
         assertEquals(expected, matlabInputString);
     }
+
+    @Test
+    public void testJavaRuntimeVersion() {
+        Runtime.Version runtimeVersion = Runtime.version();
+        String versionMain = String.valueOf(runtimeVersion.version().get(0));
+        String versionMajor = String.valueOf(runtimeVersion.version().get(1));
+        String versionMinor = String.valueOf(runtimeVersion.version().get(2));
+        assertEquals("17", versionMain);
+        assertEquals("0", versionMajor);
+        assertEquals("10", versionMinor);
+    }
 }

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Orbit_Geolocation_Extract_Local_Configuration version="0.1">
+    <parameter name="dummy" description="" type="STRING">dummy</parameter>
+</Orbit_Geolocation_Extract_Local_Configuration>

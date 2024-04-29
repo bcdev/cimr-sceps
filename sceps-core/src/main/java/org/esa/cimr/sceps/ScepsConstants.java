@@ -18,6 +18,8 @@ public class ScepsConstants {
     public static final String SCEPS_DATA_FOLDER_NAME = "SCEPSdata";
 
     public static final String SCENE_GENERATION_MODULE_FOLDER_NAME = "SceGenMod";
+    public static final String GEOINPUTS_EXTRACT_MODULE_NAME = "GeoInputs_Extract";
+    public static final String FORWARD_MODEL_MODULE_NAME = "Forward_Model";
     public static final String OBSERVING_SYSTEM_SIMULATION_MODULE_FOLDER_NAME = "ObsSimMod";
     public static final String DEVALGO_L2_MODULE_NAME = "Devalgo_L2";
     public static final String ORBIT_GEOLOCATION_EXTRACT_MODULE_NAME = "Orbit_Geolocation_Extract";

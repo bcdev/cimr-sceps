@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GeoInputs_Extract_Local_Configuration version="0.1">
+	<parameter name="scene_type" description="" type="STRING">geo-nemo</parameter>
+	<parameter name="scene_date" description="" type="STRING">20170907</parameter>
+	<parameter name="data_folder" description="" type="STRING">E2E_HOME/SCEPSdata/InputData/GeoInputData/GeoCardScenes/SCEPS_IRMA_v1</parameter>
+	<parameter name="data_file_name" description="" type="STRING">cimr_sceps_geo_card_irma_20170907_harmonised_v1p0</parameter>
+        <parameter name="latitude_filter" description="" type="ARRAY" elementType="FLOAT" dims="2">-90 90</parameter> 
+        <parameter name="longitude_filter" description="" type="ARRAY" elementType="FLOAT" dims="2">-180 180</parameter> 
+</GeoInputs_Extract_Local_Configuration>
+
+
