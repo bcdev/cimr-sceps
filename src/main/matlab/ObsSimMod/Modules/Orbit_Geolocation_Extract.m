@@ -35,6 +35,7 @@
 function Orbit_Geolocation_Extract( configurationParameters, inputs, outputs)
 
 
+
 idfunction = 'Orbit_Geolocation_Extract';
 
 
@@ -42,8 +43,20 @@ idfunction = 'Orbit_Geolocation_Extract';
 
 
 %= get log class saved as global variable
-
 global LOG
+
+
+%= making global the name of the module to parse
+%	 parse the output files names in other
+%	 modules
+global ORBITGEO_SIMULATION
+
+
+%= global variable to store ther name of the 
+%  TOA input file to be read by Sensor_Apply_Antenna
+global SCENE_TOA_FILE
+
+
 
 
 %= initialize command line parsing class
@@ -60,13 +73,17 @@ dirout = clp.getOutputFile(1);
 
 LOG.info([ idfunction, ' ** Output folder: ', dirout ])
 
+
 %= Creating folder for outputs if not existing already
 
-if ~exist( dirout, 'dir' )
-  LOG.info( [ idfunction, ' ** Creating folder ', dirout ]);
-  mkdir( dirout );
-end  
+% creating folder
+LOG.info( [ idfunction, ' ** Creating folder ', dirout ]);
+mkdir( dirout );
 
+
+ORBITGEO_SIMULATION = [ dirout, '/', idfunction ];
+
+ 
 
 %= Parse configuration files 
 
@@ -83,8 +100,8 @@ LOG.info( [ idfunction, ' ** geodata_version has value ', geodata_version ]);
 software_version = cfm1.getParameter('software_version').getValue;
 LOG.info( [ idfunction, ' ** software_version has value ', software_version ]);
 
-SCENE_FILE_NAME = clp.getInputFile(1);
-LOG.info( [ idfunction, ' ** Scene TOA-TBs extracted from file ', SCENE_FILE_NAME, ' scene' ]);
+SCENE_TOA_FILE = clp.getInputFile(1);
+LOG.info( [ idfunction, ' ** Scene TOA-TBs extracted from file ', SCENE_TOA_FILE, ' scene' ]);
 
 ORBIT_FILE_NAME = clp.getInputFile(2);
 LOG.info( [ idfunction, ' ** Orbit information from internal file ', ORBIT_FILE_NAME ]);
@@ -101,15 +118,21 @@ if ~strcmp( software_version,'v1.3')
 end
 
 
-LOG.info( [ idfunction, ' ** Orbit information from internal file -2 ', ORBIT_FILE_NAME ]);
 
 %=== Reading scene geolocation 
 
-ifile = SCENE_FILE_NAME;
-
-if  ~contains( ifile, '.nc' ) 
-  ifile = [ ifile, '.nc' ];
+if  ~contains( SCENE_TOA_FILE, '.nc' ) 
+  SCENE_TOA_FILE = [ SCENE_TOA_FILE, '.nc' ];
 end
+
+ifile = SCENE_TOA_FILE;
+
+%= OD, 20240613: 
+%= For variable input SCENE_TOA_FILE we cannot use a Matlab global variable in openSF.
+%= Therefore, in Geolocation_Extract output dir, create symbolic link (fix name)
+%= to SCENE_TOA_FILE (variable name). The fix name can then be used in Sensor_Apply_Antenna module
+LOG.info( [ idfunction, ' ** SCENE_TOA_FILE: ', SCENE_TOA_FILE ]);
+eval( [ '!ln -s ', SCENE_TOA_FILE, ' ', dirout, '/scene_toa_file.nc', ] );
 
 lon  = ncread( ifile, 'longitude' );
 lat  = ncread( ifile, 'latitude' );
@@ -121,7 +144,8 @@ if  ~contains( ofile, '.mat' )
   ofile = [ ofile, '.mat' ];
 end
 
-LOG.info( [ idfunction, ' ** Orbit information from internal file -4 ', ORBIT_FILE_NAME ]);
+
+
 
 %=== Locate orbit section corresponding to given scene
 
@@ -137,7 +161,10 @@ sprintf('asc = %s %s :: desc = %s %s\n', date_asc_orbit, datestr(date_des_orbit)
 LOG.info( [ idfunction, ' ** Finding simulation dates in file orbit' ] );
 
 
+
+
 %=== Saving orbit center dates of simulation
+
 
 filesave = [ dirout, '/', idfunction, '_Output_date_asc_orbit.asc' ];  
 LOG.info( [ idfunction, ' ** Saving ascii file ', filesave ] );
@@ -161,7 +188,6 @@ o = load( orbit_file);
 gia = find(o.output.sat_vel_north > 0);                                          
 gid = find(o.output.sat_vel_north < 0);
 
-%=keyboard
 
 if 0
 

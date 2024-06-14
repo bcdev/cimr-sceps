@@ -104,15 +104,8 @@ public class ObservingSystemSimulationModuleWrapper {
             final String geoinputSimulationMatlabGlobal = geoinputSimulationOutputFolder + File.separator +
                     ORBIT_GEOLOCATION_EXTRACT_MODULE_NAME;
 
-            final String outputs = globalConfigXmlFile.getParent() + File.separator + moduleName;
-            String inputs;
-            if (moduleName.equals(ScepsConstants.ORBIT_GEOLOCATION_EXTRACT_MODULE_NAME)) {
-                inputs = ScepsUtils.clpInputsJava2Matlab(clp.getInputFiles());
-            } else if (moduleName.equals(ScepsConstants.SENSOR_APPLY_ANTENNA_MODULE_NAME)) {
-                inputs = geoinputSimulationOutputFolder;
-            } else {
-                throw new IOException("Module name " + moduleName + " not known.");
-            }
+            final String outputs = globalConfigXmlFile.getParent() + File.separator + moduleName + "_Output";;
+            final String inputs= ScepsUtils.clpInputsJava2Matlab(clp.getInputFiles());
             Logger.info("moduleName: " + moduleName);
             Logger.info("inputs: " + inputs);
             Logger.info("outputs: " + outputs);
@@ -127,7 +120,7 @@ public class ObservingSystemSimulationModuleWrapper {
             final String chdirCmdSh = "cd " + modulesParentPath + "; ";
             final String matlabGlobalVarsString =
                     "global E2E_HOME; E2E_HOME = '" + scepsScdRoot + "'; " +
-                    "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" + geoinputSimulationMatlabGlobal + "'; " +
+                    "global ORBITGEO_SIMULATION; ORBITGEO_SIMULATION = '" + geoinputSimulationOutputFolder + "'; " +
                     "global LOG; LOG = Logger(); ";
 
             final String[] commands = {

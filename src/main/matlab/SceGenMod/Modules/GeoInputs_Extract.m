@@ -30,6 +30,7 @@
 % Developer:	  Estellus 
 % Contact:	  carlos.jimenez@estellus.fr 
 % Initiated:	  2019-01-08
+% Updates:     
 %-------------------------------------------------------------------------------
 
 function GeoInputs_Extract( configurationParameters, inputs, outputs)
@@ -76,11 +77,17 @@ LOG.info([ idfunction, ' ** Output folder: ', dirout ])
 
 %= Creating folder for outputs if not existing already
 
+if exist( dirout, 'dir' )
 
-if ~exist( dirout, 'dir' )
-  LOG.info( [ idfunction, ' ** Creating folder ', dirout ]);
-  mkdir( dirout );
-end  
+  % removing folder in case left from previous run
+   eval(['!rm -r ', dirout ])
+  
+end
+
+% creating folder
+LOG.info( [ idfunction, ' ** Creating folder ', dirout ]);
+mkdir( dirout );
+  
 
 GEOINPUT_SIMULATION = [ dirout, '/', idfunction ];
 
@@ -107,14 +114,15 @@ LOG.info( [ idfunction, ' ** Extracting fields for ', SCENE_TYPE, ' scene' ]);
 SCENE_DATE = cfm2.getParameter('scene_date').getValue;
 LOG.info( [ idfunction, ' ** Extracting fields for day ', SCENE_DATE ]);
 
-%=data_folder = cfm2.getParameter('data_folder').getValue;
-%=data_folder = strrep( data_folder, 'E2E_HOME', E2E_HOME );
-%=data_file_name = cfm2.getParameter('data_file_name').getValue;
-%=datafile = [ data_folder, '/', data_file_name ];
 
-datafile = clp.getInputFile(1);
-LOG.info( [ idfunction, ' ** Extracting fields stored at ', datafile ]);
-idatafile = [ datafile ];
+datafile_atmosphere = clp.getInputFile(1);
+LOG.info( [ idfunction, ' ** Extracting fields stored at ', datafile_atmosphere ]);
+datafile_obs = clp.getInputFile(2);
+LOG.info( [ idfunction, ' ** Extracting fields stored at ', datafile_obs ]);
+datafile_surface = clp.getInputFile(3);
+LOG.info( [ idfunction, ' ** Extracting fields stored at ', datafile_surface ]);
+
+
 
 latitude_filter = cfm2.getParameter('latitude_filter').getValue;
 LOG.info( [ idfunction, ' ** Extracting fields for latitude ', num2str(latitude_filter)]);
@@ -142,8 +150,7 @@ end
 
 %= lat lon  and data thinning with lat lon filters
 
-%=datafile = [ idatafile, '_atmosphere', '.nc' ]; 
-datafile = clp.getInputFile(1);
+datafile = datafile_atmosphere;
 LOG.info( [ idfunction, ' ** Read atmosphere file']);
 
 
@@ -313,8 +320,7 @@ clear aux auc data
 %    total column			    
 
 
-%=datafile = [ idatafile, '_surface', '.nc' ]; 
-datafile = clp.getInputFile(3);
+datafile = datafile_surface;
 
 
 %= RHO total column
@@ -357,8 +363,8 @@ clear data
 %    Land-sea-ice-coast masks
 
 
-%=datafile = [ idatafile, '_surface', '.nc' ]; 
-datafile = clp.getInputFile(3);
+datafile = datafile_surface;
+
 
 %= SIC 
 
@@ -439,8 +445,7 @@ non_ice    = setdiff( 1:length(ioa), ind_ice);
 %    Using amsr_scan time covreted to matlab datenum
 %    i.e. number of days from  01-01-0000 midnight
 
-%=datafile = [ idatafile, '_observations', '.nc' ]; 
-datafile = clp.getInputFile(2);
+datafile = datafile_obs;
 
 data    = single(ncread( datafile, 'amsr2_scan_time',[io(1) ia(1) 1],[nlo nla 1]));
 data    = data(:);
@@ -461,8 +466,7 @@ save( outfile, 'data' );
 %			    SLP [mbar]		Mean Sea Level Pressure
 
 
-%=datafile = [ idatafile, '_surface', '.nc' ]; 
-datafile = clp.getInputFile(3);
+datafile = datafile_surface;
 
 data    = single(ncread( datafile, 'sea_surface_salinity',[io(1) ia(1) 1],[nlo nla 1]));
 data    = data(:);
@@ -558,7 +562,7 @@ save( outfile, 'data' );
 %
 
 %=datafile = [ idatafile, '_surface', '.nc' ]; 
-datafile = clp.getInputFile(3);
+datafile = datafile_surface;
 
 %= LAT
 
@@ -754,8 +758,7 @@ do_obs = 1;
 
 if do_obs
 
-datafile = [ idatafile, '_observations', '.nc' ]; 
-datafile = clp.getInputFile(2);
+datafile = datafile_obs;
 
 
 %= TB 1.4V
@@ -920,3 +923,6 @@ save( outfile, 'data' );
 end
 
 return
+
+
+

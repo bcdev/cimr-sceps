@@ -48,7 +48,13 @@ idfunction = 'Forward_Model';
 
 % making global the name of the module to parse
 %	 the output files names in other modules
+%        Not used for the moment 
 global FM_SIMULATION
+
+
+% previous simulation output folder
+global GEOINPUT_SIMULATION
+
 
 % making global the FM bands of the simulation
 % and the polarizations
@@ -115,33 +121,26 @@ LOG.info([ idfunction, ' ** Output folder: ', dirout ])
 %= Creating folder input and outputs if not existing already
 
 
-if ~exist( dirin, 'dir' )
+LOG.info( [ idfunction, ' ** Creating folder ', dirin ]);
+mkdir(dirin)
 
-  LOG.info( [ idfunction, ' ** Creating folder ', dirin ]);
-  mkdir(dirin)
+% inputs to forward model from previous geo extraction
+% creating a link to a subfolder
 
-  % inputs to forward model from previous geo extraction
-  % creating a link to a subfolder
-
-  [ geoinput_dirout, geoinput_module ] = find_pre_folder( GEOINPUT_SIMULATION );
-  subdirin   = [ dirin, '/', geoinput_module, '_Output' ];
+[ geoinput_dirout, geoinput_module ] = find_pre_folder( GEOINPUT_SIMULATION );
+subdirin   = [ dirin, '/', geoinput_module, '_Output' ];
   
-  eval( [ '!ln -s ', geoinput_dirout, ' ', subdirin ] );
+eval( [ '!ln -s ', geoinput_dirout, ' ', subdirin ] );
 
-end  
 
 
 FM_SIMULATION = [ dirout, '/', idfunction ];
 
 
-
-if ~exist( dirout, 'dir' )
-
-  LOG.info( [ idfunction, ' ** Creating folder ', dirout ]);
-  mkdir( dirout );
-
-end  
-
+% creating folder
+LOG.info( [ idfunction, ' ** Creating folder ', dirout ]);
+mkdir( dirout );
+  
 
 
 
