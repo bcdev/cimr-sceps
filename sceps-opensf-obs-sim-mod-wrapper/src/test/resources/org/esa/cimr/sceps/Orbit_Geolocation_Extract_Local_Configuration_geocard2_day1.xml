@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Orbit_Geolocation_Extract_Local_Configuration version="0.1">
-	<parameter name="scene_folder" description="" type="STRING">E2E_HOME/SCEPSdata/sessionsTests/L1_Scene_Forward_Model_Simulation_GeoCard2_Day1/Forward_Model_Output</parameter>
-	<parameter name="scene_file_name" description="" type="STRING">Forward_Model_Output_20161217_BTS_aa_000</parameter>
-	<parameter name="orbit_folder" description="" type="STRING">E2E_HOME/SCEPSdata/InputData/OrbitData/SCEPS</parameter>
-	<parameter name="orbit_file_name" description="" type="STRING">OSS_CMR_TEST_MPL_ORBSCT_20280101T180001_99999999T999999_0001</parameter>
-</Orbit_Geolocation_Extract_Local_Configuration>
