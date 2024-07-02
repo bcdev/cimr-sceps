@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Global_Configuration version="01.00.00">
+
+	<parameter description="text" name="geodata_version" type="STRING">v1</parameter>
+	<parameter description="text" name="software_version" type="STRING">v1</parameter>
+	<parameter description="text" name="workers_number" type="INTEGER">0</parameter>
+	<parameter description="text" name="E2E_HOME" type="STRING">/data/sceps/SCEPSscd</parameter>
+
+</Global_Configuration>

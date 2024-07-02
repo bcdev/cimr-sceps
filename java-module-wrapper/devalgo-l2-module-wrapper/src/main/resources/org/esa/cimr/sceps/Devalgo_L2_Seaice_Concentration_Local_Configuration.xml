@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Devalgo_L2_Seaice_Concentration_Local_Configuration version="0.1">
+    <parameter name="l2_grid" description="" type="STRING"></parameter>
+</Devalgo_L2_Seaice_Concentration_Local_Configuration>
+
+

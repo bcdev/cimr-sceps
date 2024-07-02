@@ -1,0 +1,132 @@
+%
+% openSF Integration Libraries (OSFI)
+% Copyright 2010 Deimos Space, S.L.U.
+%
+% This file is part of OSFI. OSFI is free software; you can redistribute it
+% and/or modify it under the terms of the GNU Lesser General Public License as
+% published by the Free Software Foundation; either version 3 of the License,
+% or (at your option) any later version. OSFI is distributed in the hope that
+% it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+% warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+% Lesser General Public License for more details. You should have received a
+% copy of the GNU Lesser General Public License along with this program. If
+% not, see <http://www.gnu.org/licenses/>.
+%
+% SVN
+% $LastChangedDate: 2010-07-05 16:28:45 +0200 (Mon, 05 Jul 2010) $
+% $LastChangedRevision: 326 $
+% $LastChangedBy: jlgc $
+%
+%
+% Logger
+% jlgc 2010 - Deimos Space
+%
+
+classdef Logger < handle
+    %LOGGER OSFI logging class
+    %   Detailed explanation goes here
+    
+    properties (Access = private)
+        debugging      = false;
+        delimiter      = '|';
+        logFileName    = '.tmpLogFile';
+        standAloneMode = true;
+        versionFilePath    = '/Version';  
+    end
+    
+    methods
+        function Logger = Logger (standAlone)
+	    
+	    Debug_Mode = getenv('DEBUG_MODE');
+	    if (strcmpi(Debug_Mode,'On')) 
+            	Logger.debugging = true; 
+	    else
+	    	Logger.debugging = false;
+	    end
+        end
+        function error(LOG, message)
+        	version =  LOG.getVersion();
+            log = ['Error    ' LOG.delimiter ' ' message ' ' LOG.delimiter ' ' version sprintf('\n') ];
+            LOG.putLog (log);
+        end
+        function warning(LOG, message)
+        	version =  LOG.getVersion();
+            log = ['Warning  ' LOG.delimiter ' ' message ' ' LOG.delimiter ' ' version sprintf('\n')];
+            LOG.putLog (log);
+        end
+        function info(LOG, message)
+        	version =  LOG.getVersion();
+            log = ['Info     ' LOG.delimiter ' ' message ' ' LOG.delimiter ' ' version sprintf('\n') ];
+            LOG.putLog (log);
+        end
+        function debug(LOG, message)
+            if (LOG.debugging)
+            	version =  LOG.getVersion();
+                log = ['Debug    ' LOG.delimiter ' ' message ' ' LOG.delimiter ' ' version sprintf('\n') ];
+                LOG.putLog (log);
+            end
+        end
+        function progress(LOG, step, nSteps)
+        	version =  LOG.getVersion();
+            log = ['Progress ' LOG.delimiter ' ' sprintf('%d', step) ' of ' sprintf('%d', nSteps) ' ' LOG.delimiter ' ' version sprintf('\n')];            
+            LOG.putLog (log);
+        end
+        function finishExecution(LOG, exitCode)
+            LOG.info('Finishing model execution');
+            if nargin < 2 % previous behaviour - just raise an error
+                error('Finishing model execution');
+            else % Closer alignment with other OSFIs: terminate
+                exit(exitCode)
+            end
+        end
+        function qualityReport(LOG, name, value)
+           version =  LOG.getVersion();
+           if ischar(value)
+               log = ['Quality  ' LOG.delimiter ' ' name ': ' value ' ' LOG.delimiter ' ' version];
+           else
+               log = ['Quality  ' LOG.delimiter ' ' name ': ' sprintf('%f', value) ' ' LOG.delimiter ' ' version sprintf('\n')];
+           end
+           LOG.putLog (log);
+        end
+        
+        function setDebugMode (LOG, debugging)
+            LOG.debugging = debugging;
+        end
+        function setStandAlonMode (LOG, standAlone)
+            LOG.standAloneMode = standAlone;
+        end
+        
+        
+    end
+    
+    methods (Access = private)   
+        function putLog(LOG, message)
+            if (LOG.standAloneMode)
+                disp (message);
+            else
+                log_file = fopen(LOG.logFileName,'a+');
+                fprintf(log_file, message);
+                fclose(log_file);
+            end
+        end 
+         
+       function version = getVersion(LOG) 
+		   persistent osfiVersion;
+		   if isempty(osfiVersion)
+				home = getenv('OSFI_HOME');
+			    fileID = fopen(strcat(home,LOG.versionFilePath),'r');
+			    if(fileID==-1)
+                    osfiVersion = '';
+			    else
+                   content = textscan(fileID,'%s');
+                   osfiVersion = char(content{1});
+                   fclose(fileID);
+				end   
+           end 
+		   version =  osfiVersion;      
+       end
+                              
+    end
+    
+end
+

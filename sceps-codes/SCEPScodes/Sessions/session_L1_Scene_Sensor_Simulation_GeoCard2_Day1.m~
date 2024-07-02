@@ -1,0 +1,83 @@
+%-------------------------------------------------------------------------------
+%
+% SESSION   session_L1_Scene_Sensor_Simulation_GeoCard2_Day1
+%
+%    This session takes produced sensor-free scene radiance
+%    fields at the CIMR channel center frequencies and transform them
+%    with a simulated CIMR antenna and radiometer into observed radiances
+%    at the locations specified by a CIMR orbit simulation. The antenna
+%    integration is carried out using simulated antenna patterns. The 
+%    simulated radiances caare then ready to be inverted by the CIMR L2
+%    retrieval algorithm. 
+%
+%-------------------------------------------------------------------------------
+% Project:	  SCEPS
+% Package:	  OSS
+% Developer:	  Estellus 
+% Contact:	  carlos.jimenez@estellus.fr 
+% Initiated:	  
+%-------------------------------------------------------------------------------
+
+
+global E2E_HOME
+global SCEPS_WORK_SPACE
+global SCEPS_CODES_PATH
+global LOG
+
+	
+global SESSION_ID
+SESSION_ID  = 'L1_Scene_Sensor_Simulation_GeoCard2_Day1';
+
+LOG.info( [ SESSION_ID, ' ** Starting session' ] );
+
+
+%= if session exists, it is saved with the saving time
+%  and then removed to start the new session
+
+sfo = [ SCEPS_WORK_SPACE, '/', SESSION_ID ];
+
+if exist( sfo, 'dir' )
+
+  aux  = char(datetime);
+  aux  = strrep( aux, ' ', '-');
+  aux  = strrep( aux, ':', '-');
+  isfo = [ sfo, '.', aux ];
+  eval( [ '!mv ', sfo, ' ', isfo])
+
+end
+
+
+LOG.info( [ SESSION_ID, ' ** Creating session folder ', sfo ]);
+mkdir( sfo);
+cd( [ sfo ] );
+
+
+
+
+%= copying global configuration file from SWBforCIMR to session folder
+
+
+[success] = copyfile( [ SCEPS_CODES_PATH, '/General/ConfigFiles/Global_Configuration.xml'] );
+if success == 0
+  osfi_error('Problem with session folder, does it exist?')
+end
+
+
+
+%= copying global local configuration files to session folder
+
+[success] = copyfile( [ SCEPS_CODES_PATH, '/ObsSimMod/ConfigFiles/Sensor_Apply_Antenna/Sensor_Apply_Antenna_Local_Configuration_geocard2_day1.xml'], [ 'Sensor_Apply_Antenna_Local_Configuration.xml']   );
+if success == 0
+  osfi_error([ SESSION_ID, ' ** Problem with local configuration file, does it exist?'])
+end
+
+
+
+%= starting the simulation
+
+eval( 'L1_Scene_Sensor_Simulation' );
+
+LOG.info( [ SESSION_ID, ' ** Finishing session ', SESSION_ID ] );
+
+   
+

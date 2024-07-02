@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Forward_Model_Local_Configuration version="04.15.33">
+   <parameter name="frequencies" description="" type="ARRAY" elementType="FLOAT" dims="5">1.410 6.925 10.650 18.700 36.500</parameter> 
+   <parameter name="bands" description="" type="STRING" dims="1">L C X Ku Ka</parameter> 
+   <parameter name="v_polarization" description="" type="ARRAY" elementType="INTEGER" dims="5">1 1 1 1 1</parameter> 
+   <parameter name="h_polarization" description="" type="ARRAY" elementType="INTEGER" dims="5">1 1 1 1 1</parameter> 
+   <parameter name="atmosphere_adding" description="" type="ARRAY" elementType="INTEGER" dims="5">1 1 1 1 1</parameter> 
+   <parameter name="no_land" description="" type="ARRAY" elementType="INTEGER" dims="1">0</parameter> 
+   <parameter name="zenith_angle" description="freqsxscans" type="FLOAT" dims="8 5" >0 20 40 50 55 60 70 80 0 20 40 50 55 60 70 80 0 20 40 50 55 60 70 80 0 20 40 50 55 60 70 80 0 20 40 50 55 60 70 80</parameter>
+   <parameter name="azimuth_angle" description="freqsxscans" type="FLOAT" dims="1 5" >0 0 0 0 0</parameter>
+   <parameter name="sensor_height" description="" type="FLOAT">853</parameter>
+   <parameter name="data_thinning" description="" type="INTEGER">1</parameter>
+   <parameter name="emis_land_external" type="FLOAT" dims="1 1" >-999 </parameter> 
+
+   <parameter name="scene_type" description="" type="STRING">geo-nemo</parameter>
+   <parameter name="scene_date" description="" type="STRING">20161217</parameter>
+</Forward_Model_Local_Configuration>
+
+
