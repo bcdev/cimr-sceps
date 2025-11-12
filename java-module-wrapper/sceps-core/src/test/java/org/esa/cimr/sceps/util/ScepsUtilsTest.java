@@ -22,7 +22,7 @@ public class ScepsUtilsTest {
         javaList.add("def");
         javaList.add("ghi");
 
-        final String matlabInputString = ScepsUtils.clpInputsJava2Matlab(javaList);
+        final String matlabInputString = ScepsUtils.clpInputsOutputsJava2Matlab(javaList);
         assertNotNull(matlabInputString);
         final String expected = "abc,def,ghi";
         assertEquals(expected, matlabInputString);

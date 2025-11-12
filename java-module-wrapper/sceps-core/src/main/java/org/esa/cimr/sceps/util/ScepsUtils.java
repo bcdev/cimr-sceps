@@ -23,13 +23,13 @@ public class ScepsUtils {
         }
     }
 
-    public static String clpInputsJava2Matlab(List<String> clpInputFiles) {
+    public static String clpInputsOutputsJava2Matlab(List<String> clpInputOutputFiles) {
         String clpMatlabString = "";
-        for (int i = 0; i < clpInputFiles.size() - 1; i++) {
-            clpMatlabString = clpMatlabString.concat(clpInputFiles.get(i));
+        for (int i = 0; i < clpInputOutputFiles.size() - 1; i++) {
+            clpMatlabString = clpMatlabString.concat(clpInputOutputFiles.get(i));
             clpMatlabString = clpMatlabString.concat(",");
         }
-        clpMatlabString = clpMatlabString.concat(clpInputFiles.get(clpInputFiles.size() - 1));
+        clpMatlabString = clpMatlabString.concat(clpInputOutputFiles.get(clpInputOutputFiles.size() - 1));
 
         return clpMatlabString;
     }

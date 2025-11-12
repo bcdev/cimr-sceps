@@ -105,7 +105,7 @@ public class ObservingSystemSimulationModuleWrapper {
                     ORBIT_GEOLOCATION_EXTRACT_MODULE_NAME;
 
             final String outputs = globalConfigXmlFile.getParent() + File.separator + moduleName + "_Output";;
-            final String inputs= ScepsUtils.clpInputsJava2Matlab(clp.getInputFiles());
+            final String inputs= ScepsUtils.clpInputsOutputsJava2Matlab(clp.getInputFiles());
             Logger.info("moduleName: " + moduleName);
             Logger.info("inputs: " + inputs);
             Logger.info("outputs: " + outputs);

@@ -3,6 +3,7 @@ package org.esa.cimr.sceps;
 import esa.opensf.osfi.CLP;
 import esa.opensf.osfi.Logger;
 import esa.opensf.osfi.ParamReader;
+import esa.opensf.osfi.xmlutils.XmlParseException;
 import org.apache.commons.io.FilenameUtils;
 import org.esa.cimr.sceps.util.ScepsUtils;
 
@@ -11,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 import static org.esa.cimr.sceps.ScepsConstants.*;
 
@@ -22,11 +22,11 @@ import static org.esa.cimr.sceps.ScepsConstants.*;
  * (set as 'Executable' in corresponding openSF module General tab).
  * - properly transform openSF arguments/parameters to ScientificModule arguments/parameters
  * - do a system call to run the underlying Scientific Module in Matlab batch mode
- *
+ * <p>
  * In the CIMR SCEPS context, this wrapper will usually be called twice, subsequently for the two
  * scientific modules GeoInputs_Extract and 'Forward_Model'.
  */
-public class SceneGenerationModuleWrapper {
+public class SceneGenerationModuleMrtWrapper {
 
 //    *** openSF Simulation --> <moduleFile1.m>, .. ,<moduleFileN.m>  :
 //
@@ -64,13 +64,22 @@ public class SceneGenerationModuleWrapper {
      *             # Optionally, a 'simulation' mode can be set: last arg is 'simulation=true'
      */
     public static void main(String[] args) throws IOException {
+        System.out.println("Wrapped command: " + execute(args));
+    }
+
+    static String execute(String[] args) throws IOException {
+        // default mode
+        return execute(args,  null);
+    }
+
+    static String execute(String[] args, String e2eHome) throws IOException {
         if (args.length < 1) {
             Logger.error("Wrong number of arguments given - must be one comma separated string containing " +
                     "global and local config file, all input and output files. Exiting.");
             System.exit(1);
         } else {
-            // 'simulation' mode for testing. Omits execution of the Matlab batch command.
-            final boolean simulation = args[args.length - 1].equals("simulation=true");
+            // for testing, E2E_HOME can pe passed
+            final boolean simulation = e2eHome != null;
 
             // get program arguments from OSFI command line parser:
             final CLP clp = new CLP(args);
@@ -84,92 +93,43 @@ public class SceneGenerationModuleWrapper {
             final String globalConfigXmlPath = clp.getConfFiles().get(0);
             final String localConfigXmlPath = clp.getConfFiles().get(1);
 
-            Logger.info("globalConfigXmlPath: " + globalConfigXmlPath);
-            Logger.info("localConfigXmlPath: " + localConfigXmlPath);
-
-            // set relevant paths:
-            String scepsScdRoot;
-            String moduleName;
-            String sceneType;
-            String sceneDate;
-            try {
-                // this was added to global config:
-                // <parameter description="text" name="sceps_scd_root" type="STRING">/data/sceps/SCEPSscd</parameter>
-                final ParamReader globalParamReader = new ParamReader(globalConfigXmlPath);
-                scepsScdRoot = globalParamReader.getParameter("E2E_HOME").getStringValue();
-
-                moduleName = FilenameUtils.removeExtension((new File(localConfigXmlPath)).getName());
-                // strip extension '_Local_Configuration':
-                if (moduleName.contains("_Local_Configuration")) {
-                    int index = moduleName.indexOf("_Local_Configuration");
-                    moduleName = moduleName.substring(0, index);
+            if (!simulation) {
+                final ParamReader globalParamReader;
+                try {
+                    globalParamReader = new ParamReader(globalConfigXmlPath);
+                    e2eHome = globalParamReader.getParameter("E2E_HOME").getStringValue();
+                } catch (XmlParseException e) {
+                    throw new RuntimeException(e);
                 }
-
-                // we need SCENE_TYPE and SCENE_DATE as global variables from GeoInputs_Extract config:
-                // It's in GeoInputs_Extract config only, thus this was added to Forward_Model local config:
-                final ParamReader localParamReader = new ParamReader(localConfigXmlPath);
-                sceneType = localParamReader.getParameter(SCEPS_SCENE_TYPE_CONFIG_ITEM_NAME).getStringValue();
-                sceneDate = localParamReader.getParameter(SCEPS_SCENE_DATE_CONFIG_ITEM_NAME).getStringValue();
-            } catch (Exception e) {
-                // todo
-                throw new RuntimeException(e);
             }
 
-            final String devSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_CODES_FOLDER_NAME;
-            final String dataSCEPSpath = scepsScdRoot + File.separator + ScepsConstants.SCEPS_DATA_FOLDER_NAME;
-            final String modulesParentPath = devSCEPSpath + File.separator +
-                    ScepsConstants.SCENE_GENERATION_MODULE_FOLDER_NAME + File.separator +
-                    ScepsConstants.MODULES_SUBFOLDER_NAME;
-            final String subModulesParentPath = devSCEPSpath + File.separator +
-                    ScepsConstants.SCENE_GENERATION_MODULE_FOLDER_NAME + File.separator +
-                    ScepsConstants.MODULE_SUBMODULES_SUBFOLDER_NAME;
+            String moduleName = FilenameUtils.removeExtension((new File(localConfigXmlPath)).getName());
+            // strip extension '_Local_Configuration':
+            if (moduleName.contains("_Local_Configuration")) {
+                int index = moduleName.indexOf("_Local_Configuration");
+                moduleName = moduleName.substring(0, index);
+            }
+            final String modulePath = e2eHome + "/SCEPScodes/SceGenMod/Modules/" + moduleName;
+            if (!simulation && !(new File(modulePath).exists())) {
+                throw new IOException("Wrong structure of SCEPS package:  Module path: " + modulePath +
+                        ". Must be: E2E_HOME/SCEPScodes/SceGenMod/Modules/<module name>");
+            }
 
             // set relevant parameters to match module name signature (see e.g. GeoInputs_Extract.m):
             final String configurationParameters = globalConfigXmlPath + "," + localConfigXmlPath;
-            final File globalConfigXmlFile = new File(globalConfigXmlPath);
-            final String geoinputSimulationOutputFolder = globalConfigXmlFile.getParent() + File.separator +
-                    GEOINPUTS_EXTRACT_MODULE_NAME + "_Output";
-            final String geoinputSimulationMatlabGlobal = geoinputSimulationOutputFolder + File.separator +
-                    GEOINPUTS_EXTRACT_MODULE_NAME;
-
-            final String outputs = globalConfigXmlFile.getParent() + File.separator + moduleName + "_Output";
-            String inputs;
-            if (moduleName.equals(ScepsConstants.GEOINPUTS_EXTRACT_MODULE_NAME)) {
-                inputs = ScepsUtils.clpInputsOutputsJava2Matlab(clp.getInputFiles());
-            } else if (moduleName.equals(FORWARD_MODEL_MODULE_NAME)) {
-                inputs = geoinputSimulationOutputFolder;
-            } else {
-                throw new IOException("Module name " + moduleName + " not known.");
-            }
-            Logger.info("moduleName: " + moduleName);
-            Logger.info("inputs: " + inputs);
-            Logger.info("outputs: " + outputs);
-
-            final String scepsPathCmdSh = "devSCEPSpath = '" + devSCEPSpath + "'; ";
-            final String addpath1CmdSh =
-                    "addpath '" + devSCEPSpath + File.separator + SCEPS_CODES_GENERAL_SUBMODULES_FOLDER_NAME + "'; ";
-            final String addpath2CmdSh =
-                    "addpath '" + devSCEPSpath + File.separator + SCEPS_CODES_OSFI_MATLAB_FOLDER_NAME + "'; ";
-            final String addpath3CmdSh = "addpath '" + modulesParentPath + "'; ";
-            final String addpath4CmdSh = "addpath '" + subModulesParentPath + "'; ";
-            final String chdirCmdSh = "cd " + modulesParentPath + "; ";
-            final String matlabGlobalVarsString =
-                    "global E2E_HOME; E2E_HOME = '" + scepsScdRoot + "'; " +
-                            "global SCENE_TYPE; SCENE_TYPE = '" + sceneType + "'; " +
-                            "global SCENE_DATE; SCENE_DATE = '" + sceneDate + "'; " +
-                            "global GEOINPUT_SIMULATION; GEOINPUT_SIMULATION = '" + geoinputSimulationMatlabGlobal + "'; " +
-                            "global LOG; LOG = Logger(); ";
+            final String inputs = ScepsUtils.clpInputsOutputsJava2Matlab(clp.getInputFiles());
+            final String outputs = ScepsUtils.clpInputsOutputsJava2Matlab(clp.getOutputFiles());
 
             final String[] commands = {
-                    "matlab",
-                    "-batch",
-                    scepsPathCmdSh +
-                            addpath1CmdSh + addpath2CmdSh + addpath3CmdSh + addpath4CmdSh +
-                            chdirCmdSh + matlabGlobalVarsString +
-                            moduleName + "('" + configurationParameters + "','" + inputs + "','" + outputs + "');"
+                    modulePath,
+                    configurationParameters,
+                    inputs,
+                    outputs
             };
 
-            Logger.info("Command sequence: " + Arrays.toString(commands));
+            final String commandsString = modulePath + " " + configurationParameters + " " +
+                    inputs + " " + outputs;
+            Logger.info("Wrapped command: " + commandsString);
 
             if (!simulation) {
                 try {
@@ -187,13 +147,16 @@ public class SceneGenerationModuleWrapper {
                     reader.close();
 
                     if (process.exitValue() != 0) {
-                        throw new RuntimeException("SceGen Matlab process terminated with an error");
+                        throw new RuntimeException("SceGen Matlab Runtime process terminated with an error");
                     }
 
                 } catch (IOException | InterruptedException e) {
-                    throw new RuntimeException("Executing SceGen openSF simulation from Java wrapper failed: " + e.getMessage());
+                    throw new RuntimeException("Executing SceGen openSF Matlab Runtime " +
+                            "simulation from Java wrapper failed: " + e.getMessage());
                 }
             }
+            return commandsString;
         }
+        return null;
     }
 }
