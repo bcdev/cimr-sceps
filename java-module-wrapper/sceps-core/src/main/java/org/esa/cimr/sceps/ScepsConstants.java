@@ -10,7 +10,7 @@ import java.io.File;
  */
 public class ScepsConstants {
 
-    public static final String SCEPS_CODES_FOLDER_NAME = "SCEPScodes";
+    public static final String SCEPS_CODES_FOLDER_NAME = "SCEPSCodes";
     public static final String SCEPS_CODES_OSFI_MATLAB_FOLDER_NAME =
              "OSFI" + File.separator + "Matlab";
     public static final String SCEPS_CODES_GENERAL_SUBMODULES_FOLDER_NAME =

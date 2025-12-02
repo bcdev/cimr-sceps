@@ -109,10 +109,11 @@ public class SceneGenerationModuleMrtWrapper {
                 int index = moduleName.indexOf("_Local_Configuration");
                 moduleName = moduleName.substring(0, index);
             }
-            final String modulePath = e2eHome + "/SCEPScodes/SceGenMod/Modules/" + moduleName;
+            final String modulePath = e2eHome + "/" + SCEPS_CODES_FOLDER_NAME + "/SceGenMod/Modules/" + moduleName;
             if (!simulation && !(new File(modulePath).exists())) {
                 throw new IOException("Wrong structure of SCEPS package:  Module path: " + modulePath +
-                        ". Must be: E2E_HOME/SCEPScodes/SceGenMod/Modules/<module name>");
+                        ". Must be: E2E_HOME/" + SCEPS_CODES_FOLDER_NAME +
+                        "/SceGenMod/Modules/<module name>");
             }
 
             // set relevant parameters to match module name signature (see e.g. GeoInputs_Extract.m):
