@@ -10,6 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,11 +32,13 @@ public class ScepsConfigUseOsfiTest {
     private String configFiles;
 
     @Before
-    public void setUp() {
-        globalConfigXmlPath =
-                Objects.requireNonNull(getClass().getResource("Global_Configuration.xml")).getPath();
-        localConfigXmlPath =
-                Objects.requireNonNull(getClass().getResource("Some_Local_Configuration.xml")).getPath();
+    public void setUp() throws URISyntaxException {
+        globalConfigXmlPath = Paths.get(Objects.requireNonNull(
+                getClass().getResource("Global_Configuration.xml")).toURI()).toFile().getAbsolutePath();
+
+        localConfigXmlPath = Paths.get(Objects.requireNonNull(
+                        getClass().getResource("Some_Local_Configuration.xml")).toURI()).toFile().getAbsolutePath();
+
         configFiles = globalConfigXmlPath + "," + localConfigXmlPath;
 
         inputFile1 = "/path/to/input1.txt";
