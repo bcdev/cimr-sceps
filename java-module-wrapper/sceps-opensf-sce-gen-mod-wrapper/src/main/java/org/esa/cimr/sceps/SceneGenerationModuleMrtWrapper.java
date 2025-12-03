@@ -109,7 +109,8 @@ public class SceneGenerationModuleMrtWrapper {
                 int index = moduleName.indexOf("_Local_Configuration");
                 moduleName = moduleName.substring(0, index);
             }
-            final String modulePath = e2eHome + "/" + SCEPS_CODES_FOLDER_NAME + "/SceGenMod/Modules/" + moduleName;
+//            final String modulePath = e2eHome + "/" + SCEPS_CODES_FOLDER_NAME + "/SceGenMod/Modules/" + moduleName;
+            final String modulePath = e2eHome + "/" + SCEPS_CODES_FOLDER_NAME + "/RunTimeEnv/" + moduleName;
             if (!simulation && !(new File(modulePath).exists())) {
                 throw new IOException("Wrong structure of SCEPS package:  Module path: " + modulePath +
                         ". Must be: E2E_HOME/" + SCEPS_CODES_FOLDER_NAME +

@@ -14,7 +14,8 @@ public class SceneGenerationModuleMrtWrapperTest {
     public void testGetWrappedCommand_GeoInputs_Extract() {
 
         final String E2E_HOME = "/MY/E2E/HOME";
-        final String mrtExecPath = E2E_HOME + "/" + SCEPS_CODES_FOLDER_NAME + "/SceGenMod/Modules/GeoInputs_Extract";
+//        final String mrtExecPath = E2E_HOME + "/" + SCEPS_CODES_FOLDER_NAME + "/SceGenMod/Modules/GeoInputs_Extract";
+        final String mrtExecPath = E2E_HOME + "/" + SCEPS_CODES_FOLDER_NAME + "/RunTimeEnv/GeoInputs_Extract";
         final String globalConfigPath = E2E_HOME + "/executions/SCEPS_SceGenSim.last/Global_Configuration.xml";
         final String localConfigPath = E2E_HOME + "/executions/SCEPS_SceGenSim.last/GeoInputs_Extract_Local_Configuration_bla.xml";
         final String firstInputFile = E2E_HOME + "/executions/SCEPS_SceGenSim.last/first.nc";
@@ -55,7 +56,8 @@ public class SceneGenerationModuleMrtWrapperTest {
     public void testGetWrappedCommand_Forward_Model() {
 
         final String E2E_HOME = "/MY/E2E/HOME";
-        final String mrtExecPath = E2E_HOME + "/" + SCEPS_CODES_FOLDER_NAME + "/SceGenMod/Modules/Forward_Model";
+//        final String mrtExecPath = E2E_HOME + "/" + SCEPS_CODES_FOLDER_NAME + "/SceGenMod/Modules/Forward_Model";
+        final String mrtExecPath = E2E_HOME + "/" + SCEPS_CODES_FOLDER_NAME + "/RunTimeEnv/Forward_Model";
         final String globalConfigPath = E2E_HOME + "/executions/SCEPS_SceGenSim.last/Global_Configuration.xml";
         final String localConfigPath = E2E_HOME + "/executions/SCEPS_SceGenSim.last/Forward_Model_Local_Configuration_blubb.xml";
         final String firstInputFile = E2E_HOME + "/executions/SCEPS_SceGenSim.last/GeoInputs_Extract_Output";
