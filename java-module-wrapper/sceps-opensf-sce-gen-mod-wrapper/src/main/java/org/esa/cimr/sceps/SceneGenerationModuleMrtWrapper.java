@@ -94,12 +94,15 @@ public class SceneGenerationModuleMrtWrapper {
             final String localConfigXmlPath = clp.getConfFiles().get(1);
 
             if (!simulation) {
-                final ParamReader globalParamReader;
-                try {
-                    globalParamReader = new ParamReader(globalConfigXmlPath);
-                    e2eHome = globalParamReader.getParameter("E2E_HOME").getStringValue();
-                } catch (XmlParseException e) {
-                    throw new RuntimeException(e);
+                e2eHome = System.getenv("E2E_HOME");
+                if (e2eHome == null) {
+                    final ParamReader globalParamReader;
+                    try {
+                        globalParamReader = new ParamReader(globalConfigXmlPath);
+                        e2eHome = globalParamReader.getParameter("E2E_HOME").getStringValue();
+                    } catch (XmlParseException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
 
