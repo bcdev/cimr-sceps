@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-import static org.esa.cimr.sceps.ScepsConstants.*;
+import static org.esa.cimr.sceps.ScepsConstants.SCEPS_CODES_FOLDER_NAME;
 
 /**
  * Class containing the wrapper for the OSF Scene Generation Scientific Moduule.
@@ -26,7 +26,7 @@ import static org.esa.cimr.sceps.ScepsConstants.*;
  * In the CIMR SCEPS context, this wrapper will usually be called twice, subsequently for the two
  * scientific modules GeoInputs_Extract and 'Forward_Model'.
  */
-public class SceneGenerationModuleMrtWrapper {
+public class ObservingSystemSimulationModuleMrtWrapper {
 
     // TODO: wrapper for MRT execcutables is actually the same for all modules (SceGenMod, ObsSimMod).
     // --> move functionality into generic class in sceps-core!

@@ -30,7 +30,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>org.esa.cimr.sceps.ObservingSystemSimulationModuleWrapper</mainClass>
+                  <mainClass>org.esa.cimr.sceps.ObservingSystemSimulationModuleMrtWrapper</mainClass>
                 </transformer>
               </transformers>
             </configuration>
