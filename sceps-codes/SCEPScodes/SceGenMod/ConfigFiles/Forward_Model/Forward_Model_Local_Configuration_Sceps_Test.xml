@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Forward_Model_Local_Configuration version="0.0">
+      
+    
+  <parameter description="" dims="5" elementType="FLOAT" name="frequencies" type="ARRAY">1.4135 6.925 10.65 18.7 36.5</parameter>
+      
+  <parameter description="" name="bands" type="STRING">L C X Ku Ka</parameter>
+      
+  <parameter description="" dims="5" elementType="INTEGER" name="v_polarization" type="ARRAY">1 1 1 1 1</parameter>
+      
+  <parameter description="" dims="5" elementType="INTEGER" name="h_polarization" type="ARRAY">1 1 1 1 1</parameter>
+      
+  <parameter description="" dims="5" elementType="INTEGER" name="atmosphere_adding" type="ARRAY">1 1 1 1 1</parameter>
+      
+  <parameter description="" dims="8" elementType="FLOAT" name="zenith_angle" type="ARRAY">0.0 20.0 40.0 50.0 55.0 60.0 70.0 80.0</parameter>
+      
+  <parameter description="" name="azimuth_angle" type="FLOAT">0.0</parameter>
+      
+  <parameter description="" name="sensor_height" type="FLOAT">853.0</parameter>
+      
+  <parameter description="" name="data_thinning" type="INTEGER">8</parameter>
+      
+  <parameter description="" name="only_netcdf" type="INTEGER">0</parameter>
+      
+  <parameter description="" name="only_land_climato" type="INTEGER">0</parameter>
+      
+  <parameter description="" name="only_seaice_climato" type="INTEGER">0</parameter>
+  
+</Forward_Model_Local_Configuration>

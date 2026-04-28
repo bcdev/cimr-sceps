@@ -28,7 +28,7 @@ if nargin == 1
   do_halt = 1;
 end
 
-global LOG
+LOG = Logger();
 
 LOG.error ( msgd );
 if do_halt

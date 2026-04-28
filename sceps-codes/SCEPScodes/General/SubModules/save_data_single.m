@@ -19,6 +19,7 @@
 
 function save_data_single( outfile, data )
 
+data = squeeze(data);
 save( outfile, 'data', '-v7.3' );
 
 return

@@ -12,7 +12,7 @@ restoredefaultpath
 
 %=  to be changed by user
 UID              = '/obs/cjimenez';
-codeSCEPSpath    = [ UID, '/Work/DataE/SCEPSOpenSF/SCEPSscd/SCEPScodes' ];
+codeSCEPSpath    = [ UID, '/Work/DataE/SCEPSOpenSF/OpenSFMatlab/SCEPScodes' ];
 dataSCEPSpath    = [ UID, '/Work/DataE/SCEPSOpenSF/SCEPSscd/SCEPSdata' ];
 wspaceSCEPSpath  = [ UID, '/Work/DataE/SCEPSOpenSF/MatlabWorkSpace' ];
 

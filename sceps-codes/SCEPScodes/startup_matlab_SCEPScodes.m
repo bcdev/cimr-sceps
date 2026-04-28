@@ -27,9 +27,9 @@ UID = UID( 1 : (length(UID)-1) );
 
 
 if nargin == 0
-  codeSCEPSpath  = [ UID, '/Work/DataE/SCEPSOpenSF/OpenSFMatlab/SCEPScodes' ];
-  dataSCEPSpath    = [ UID, '/Work/DataE/SCEPSOpenSF/SCEPSscd/SCEPSdata' ];
-  wspaceSCEPSpath  = [ UID, '/Work/DataE/SCEPSOpenSF/MatlabWorkSpace' ];
+  codeSCEPSpath  = [ UID, '/Work/Studies/SCEPS2OpenSF/SCEPSCodes' ];
+  dataSCEPSpath    = [ UID, '/Work/DataE/SCEPS2OpenSF/SCEPSData' ];
+  wspaceSCEPSpath  = [ UID, '/Work/DataE/SCEPS2OpenSF/MatlabWorkSpace' ];
 end
 
 
@@ -44,13 +44,12 @@ SCEPS_CODES_PATH = codeSCEPSpath;
 
 %= adding OSFI library for Matlab
 
-addpath([ codeSCEPSpath, '/OSFI/Matlab' ]);
+addpath([ codeSCEPSpath, '/OSFI' ]);
 
 
 
 %= setting log class and making it global 
 
-global LOG
 LOG = Logger();
 
 disp(' ');
@@ -60,15 +59,11 @@ LOG.info(['Starting Software Workbench for an End-to-End simulation chain for CI
 
 
 %= setting OSF home variable to the data package location
-%  as in OpenSF
+%  as in OpenSF, and making system environmental variable
+%  to mimic OpenSF
 
-global E2E_HOME
-E2E_HOME = [ UID, '/Work/DataE/SCEPSOpenSF/SCEPSscd' ];
-
-% making system environmental variable
-
+E2E_HOME = [ UID, '/Work/DataE/SCEPS2OpenSF/SCEPSData' ];
 setenv( 'E2E_HOME', E2E_HOME )
-
 
 
 
@@ -88,19 +83,35 @@ addpath([ codeSCEPSpath, '/SceGenMod/ConfigFiles']);
 addpath([ codeSCEPSpath, '/SceGenMod/Modules']);
 addpath([ codeSCEPSpath, '/SceGenMod/SubModules']);
 
+% this is a link from MwInversionSuite where we are storing forward models
+% when distributed we need to copy this
+
+addpath([ codeSCEPSpath, '/SceGenMod/SubModules/ForwardModels']);
+
+addpath([ codeSCEPSpath, '/SceGenMod/Simulations']);
+
 
 % Observing System  Module
 
 addpath([ codeSCEPSpath, '/ObsSimMod/ConfigFiles']);
 addpath([ codeSCEPSpath, '/ObsSimMod/Modules']);
 
+addpath([ codeSCEPSpath, '/ObsSimMod/Simulations']);
+
 
 
 %= adding path to general folder with sessions
 %  user can define a new path to use other folders
 %  we just recopy the general one here
+%  But better to remove so the user needs to 
+%  think about this and go to his session
 
 addpath([ codeSCEPSpath, '/Sessions']);
+
+
+%= adding path to compilations folder
+
+addpath([ codeSCEPSpath, '/RunTimeEnv']);
 
 
 %= simulation folders for each session will be 
